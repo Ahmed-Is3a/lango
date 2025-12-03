@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { deleteVocabulary } from "@/app/lib/crud/vocabulary";
-import { getLessonById } from "@/app/lib/crud/lesson";
 
-export async function POST(req: Request, ctx: { params?: { id?: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id?: string }> }) {
   try {
     const form = await req.formData().catch(() => null);
     const fromForm = (form?.get("id") as string) || undefined;
-    const id = ctx?.params?.id || fromForm;
+    const { id: fromParams } = (await params) || {} as any;
+    const id = fromParams || fromForm;
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     // Find lesson id before delete to redirect back

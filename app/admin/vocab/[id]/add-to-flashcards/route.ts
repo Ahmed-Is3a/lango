@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
 
-export async function POST(req: Request, ctx: { params?: { id?: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id?: string }> }) {
   try {
     const form = await req.formData().catch(() => null);
     const fromForm = (form?.get("id") as string) || undefined;
-    const vocabId = ctx?.params?.id || fromForm;
+    const { id: fromParams } = (await params) || {} as any;
+    const vocabId = fromParams || fromForm;
     if (!vocabId) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
     const vocab = await prisma.vocabulary.findUnique({

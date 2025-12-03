@@ -5,7 +5,7 @@ export async function POST(req: Request, ctx: { params?: { id?: string } }) {
   try {
     const form = await req.formData();
     const fromForm = (form.get("id") as string) || undefined;
-    const fromParams = ctx?.params?.id;
+    const { id: fromParams } = (await ctx.params) || {} as any;
     const url = new URL(req.url);
     const parts = url.pathname.split("/").filter(Boolean);
     const fromPath = parts.length >= 4 ? parts[3] : undefined; // /admin/lessons/[id]/update
