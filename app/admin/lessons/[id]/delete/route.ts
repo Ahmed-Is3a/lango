@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { deleteLesson } from "@/app/lib/crud/lesson";
 
-export async function POST(req: Request, { params }: { params: Promise<{ id?: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const form = await req.formData().catch(() => null);
     const fromForm = (form?.get("id") as string) || undefined;
