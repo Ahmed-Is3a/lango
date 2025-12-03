@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAllLanguages } from "./lib/queries";
+import { getAllLanguages } from "../lib/queries";
 
 export default async function LanguagesPage() {
   const languages = await getAllLanguages();

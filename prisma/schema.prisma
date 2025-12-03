@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+
+model Language {
+  id         String      @id @default(uuid())
+  name       String
+  level      String
+  lessons    Lesson[]
+  flashcards Flashcard[]
+}
+
+model Lesson {
+  id          String     @id @default(uuid())
+  languageId  String
+  language    Language   @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  content     String
+  exercises   Exercise[]
+  vocabularies Vocabulary[]
+}
+
+model Exercise {
+  id       String        @id @default(uuid())
+  lessonId String
+  lesson   Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type     String
+  prompt   String
+  options  String
+  answer   String
+}
+
+model Flashcard {
+  id         String    @id @default(uuid())
+  languageId String
+  language   Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  term       String
+  definition String
+}
+
+model Vocabulary {
+  id        String  @id @default(uuid())
+  lessonId  String
+  lesson    Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  term      String
+  definition String
+}

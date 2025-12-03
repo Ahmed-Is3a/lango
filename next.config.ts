@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* PWA assets served from public: manifest and service worker */
+  headers: async () => [
+    {
+      source: '/manifest.json',
+      headers: [
+        { key: 'Content-Type', value: 'application/manifest+json' }
+      ],
+    },
+  ],
 };
 
 export default nextConfig;
