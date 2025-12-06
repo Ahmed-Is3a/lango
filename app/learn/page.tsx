@@ -21,9 +21,26 @@ export default function LearnPage() {
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch('/api/vocabs');
-      const json = await res.json();
-      setItems(json.data || []);
+      try {
+        const res = await fetch('/api/vocabs');
+        if (!res.ok) throw new Error('Network');
+        const json = await res.json();
+        const data = json.data || [];
+        setItems(data);
+        // Cache snapshot locally for offline usage
+        try {
+          localStorage.setItem('vocabs-cache', JSON.stringify(data));
+        } catch {}
+      } catch {
+        // Fallback: use last cached snapshot
+        try {
+          const raw = localStorage.getItem('vocabs-cache');
+          if (raw) {
+            const cached = JSON.parse(raw) as Vocab[];
+            setItems(cached);
+          }
+        } catch {}
+      }
       setCurrentIndex(0);
       setIsFlipped(false);
     };
@@ -52,6 +69,10 @@ export default function LearnPage() {
   const [newTerm, setNewTerm] = useState('');
   const [newDefinition, setNewDefinition] = useState('');
   const [newLanguage, setNewLanguage] = useState('en');
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTerm, setEditTerm] = useState('');
+  const [editDefinition, setEditDefinition] = useState('');
+  const [editLanguage, setEditLanguage] = useState('');
 
   const addItem = async () => {
     const res = await fetch('/api/vocabs', {
@@ -61,9 +82,64 @@ export default function LearnPage() {
     });
     if (res.ok) {
       const json = await res.json();
-      setItems((prev) => [json.data, ...prev]);
+      setItems((prev) => {
+        const updated = [json.data, ...prev];
+        try {
+          localStorage.setItem('vocabs-cache', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
       setNewTerm('');
       setNewDefinition('');
+    }
+  };
+
+  const startEdit = (v: Vocab) => {
+    setEditingId(v.id);
+    setEditTerm(v.term);
+    setEditDefinition(v.definition);
+    setEditLanguage(v.language);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTerm('');
+    setEditDefinition('');
+    setEditLanguage('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingId) return;
+    const res = await fetch('/api/vocabs', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editingId, term: editTerm, definition: editDefinition, language: editLanguage }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      setItems((prev) => {
+        const updated = prev.map((p) => (p.id === editingId ? json.data : p));
+        try { localStorage.setItem('vocabs-cache', JSON.stringify(updated)); } catch {}
+        return updated;
+      });
+      cancelEdit();
+    }
+  };
+
+  const removeItem = async (id: number) => {
+    const res = await fetch(`/api/vocabs?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setItems((prev) => {
+        const updated = prev.filter((p) => p.id !== id);
+        try { localStorage.setItem('vocabs-cache', JSON.stringify(updated)); } catch {}
+        return updated;
+      });
+      setLearnedWords((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      if (currentIndex >= items.length - 1) setCurrentIndex(0);
     }
   };
 
@@ -226,9 +302,27 @@ export default function LearnPage() {
                     <span className="text-xl">✓</span>
                   )}
                 </div>
+                <div className="mt-3 flex gap-2">
+                  <button onClick={() => startEdit(word)} className="rounded-md border px-3 py-1 text-sm">Edit</button>
+                  <button onClick={() => removeItem(word.id)} className="rounded-md border px-3 py-1 text-sm text-red-600">Delete</button>
+                </div>
               </button>
             ))}
           </div>
+          {editingId !== null && (
+            <div className="mt-6 rounded-lg border p-4">
+              <h4 className="mb-3 font-semibold">Edit Term</h4>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <input value={editTerm} onChange={(e) => setEditTerm(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
+                <input value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
+                <input value={editLanguage} onChange={(e) => setEditLanguage(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
+                <div className="flex gap-2">
+                  <button onClick={saveEdit} className="rounded-md bg-blue-600 px-4 py-2 text-white">Save</button>
+                  <button onClick={cancelEdit} className="rounded-md border px-4 py-2">Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -29,3 +29,19 @@ export function createVocab(input: {
   );
   return select.get(info.lastInsertRowid) as Vocab;
 }
+
+export function updateVocab(id: number, input: Partial<{ term: string; definition: string; language: string }>): Vocab | null {
+  const current = db.prepare('SELECT * FROM vocabs WHERE id = ?').get(id) as Vocab | undefined;
+  if (!current) return null;
+  const term = input.term ?? current.term;
+  const definition = input.definition ?? current.definition;
+  const language = input.language ?? current.language;
+  db.prepare('UPDATE vocabs SET term = ?, definition = ?, language = ? WHERE id = ?').run(term, definition, language, id);
+  const select = db.prepare('SELECT id, term, definition, language, created_at FROM vocabs WHERE id = ?');
+  return select.get(id) as Vocab;
+}
+
+export function deleteVocab(id: number): boolean {
+  const res = db.prepare('DELETE FROM vocabs WHERE id = ?').run(id);
+  return res.changes > 0;
+}
