@@ -3,110 +3,69 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-interface Word {
+interface Vocab {
   id: number;
-  word: string;
-  translation: string;
-  example: string;
-  category: string;
+  term: string;
+  definition: string;
+  language: string;
+  created_at: string;
 }
 
-const vocabulary: Word[] = [
-  {
-    id: 1,
-    word: 'Hello',
-    translation: 'Hola',
-    example: 'Hello, how are you?',
-    category: 'Greetings',
-  },
-  {
-    id: 2,
-    word: 'Thank you',
-    translation: 'Gracias',
-    example: 'Thank you for your help.',
-    category: 'Common',
-  },
-  {
-    id: 3,
-    word: 'Please',
-    translation: 'Por favor',
-    example: 'Please, can you help me?',
-    category: 'Common',
-  },
-  {
-    id: 4,
-    word: 'Goodbye',
-    translation: 'Adiós',
-    example: 'Goodbye, see you tomorrow!',
-    category: 'Greetings',
-  },
-  {
-    id: 5,
-    word: 'Water',
-    translation: 'Agua',
-    example: 'I need a glass of water.',
-    category: 'Food & Drink',
-  },
-  {
-    id: 6,
-    word: 'Food',
-    translation: 'Comida',
-    example: 'The food is delicious.',
-    category: 'Food & Drink',
-  },
-  {
-    id: 7,
-    word: 'Friend',
-    translation: 'Amigo',
-    example: 'He is my best friend.',
-    category: 'People',
-  },
-  {
-    id: 8,
-    word: 'House',
-    translation: 'Casa',
-    example: 'This is my house.',
-    category: 'Places',
-  },
-  {
-    id: 9,
-    word: 'Beautiful',
-    translation: 'Hermoso',
-    example: 'What a beautiful day!',
-    category: 'Adjectives',
-  },
-  {
-    id: 10,
-    word: 'Love',
-    translation: 'Amor',
-    example: 'I love learning languages.',
-    category: 'Emotions',
-  },
-];
-
 export default function LearnPage() {
+  const [items, setItems] = useState<Vocab[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [learnedWords, setLearnedWords] = useState<Set<number>>(new Set());
 
-  const currentWord = vocabulary[currentIndex];
+  const currentItem = items[currentIndex];
+
+  useEffect(() => {
+    const load = async () => {
+      const res = await fetch('/api/vocabs');
+      const json = await res.json();
+      setItems(json.data || []);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+    };
+    load();
+  }, []);
 
   const handleNext = () => {
-    setLearnedWords((prev) => new Set([...prev, currentWord.id]));
+    if (!items.length) return;
+    setLearnedWords((prev) => new Set([...prev, currentItem.id]));
     setIsFlipped(false);
-    setCurrentIndex((prev) => (prev + 1) % vocabulary.length);
+    setCurrentIndex((prev) => (prev + 1) % items.length);
   };
 
   const handlePrevious = () => {
+    if (!items.length) return;
     setIsFlipped(false);
-    setCurrentIndex((prev) => (prev - 1 + vocabulary.length) % vocabulary.length);
+    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
   };
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
-  const progress = (learnedWords.size / vocabulary.length) * 100;
+  const progress = items.length ? (learnedWords.size / items.length) * 100 : 0;
+
+  const [newTerm, setNewTerm] = useState('');
+  const [newDefinition, setNewDefinition] = useState('');
+  const [newLanguage, setNewLanguage] = useState('en');
+
+  const addItem = async () => {
+    const res = await fetch('/api/vocabs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ term: newTerm, definition: newDefinition, language: newLanguage }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      setItems((prev) => [json.data, ...prev]);
+      setNewTerm('');
+      setNewDefinition('');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -129,7 +88,7 @@ export default function LearnPage() {
         <div className="mb-8">
           <div className="mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-300">
             <span>
-              Progress: {learnedWords.size} / {vocabulary.length} words
+              Progress: {learnedWords.size} / {items.length} words
             </span>
             <span>{Math.round(progress)}%</span>
           </div>
@@ -156,10 +115,10 @@ export default function LearnPage() {
               <div className="absolute inset-0 backface-hidden rounded-2xl bg-white p-12 shadow-2xl dark:bg-gray-800">
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <div className="mb-4 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900 dark:text-blue-300">
-                    {currentWord.category}
+                    {currentItem?.language?.toUpperCase() || 'LANG'}
                   </div>
                   <h2 className="mb-6 text-6xl font-bold text-gray-800 dark:text-gray-200">
-                    {currentWord.word}
+                    {currentItem?.term || 'No items yet'}
                   </h2>
                   <p className="text-lg text-gray-500 dark:text-gray-400">
                     Click to reveal translation
@@ -171,15 +130,12 @@ export default function LearnPage() {
               <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-12 shadow-2xl">
                 <div className="flex h-full flex-col items-center justify-center text-center text-white">
                   <div className="mb-4 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold">
-                    {currentWord.category}
+                    {currentItem?.language?.toUpperCase()}
                   </div>
                   <h2 className="mb-6 text-6xl font-bold">
-                    {currentWord.translation}
+                    {currentItem?.definition || ''}
                   </h2>
-                  <p className="mb-4 text-xl opacity-90">{currentWord.example}</p>
-                  <p className="text-sm opacity-75 italic">
-                    "{currentWord.word}" in context
-                  </p>
+                  <p className="text-sm opacity-75 italic">"{currentItem?.term}"</p>
                 </div>
               </div>
             </div>
@@ -208,13 +164,39 @@ export default function LearnPage() {
           </button>
         </div>
 
+        {/* Add New Vocab */}
+        <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
+          <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">Add New Term</h3>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <input
+              value={newTerm}
+              onChange={(e) => setNewTerm(e.target.value)}
+              placeholder="Term"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+            />
+            <input
+              value={newDefinition}
+              onChange={(e) => setNewDefinition(e.target.value)}
+              placeholder="Definition"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+            />
+            <input
+              value={newLanguage}
+              onChange={(e) => setNewLanguage(e.target.value)}
+              placeholder="Language (e.g., en, es)"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+            />
+            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-2 text-white">Add</button>
+          </div>
+        </div>
+
         {/* Word List */}
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
           <h3 className="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
-            All Words ({vocabulary.length})
+            All Words ({items.length})
           </h3>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {vocabulary.map((word, index) => (
+            {items.map((word, index) => (
               <button
                 key={word.id}
                 onClick={() => {
@@ -234,10 +216,10 @@ export default function LearnPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {word.word}
+                      {word.term}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {word.translation}
+                      {word.definition}
                     </div>
                   </div>
                   {learnedWords.has(word.id) && (
