@@ -21,6 +21,18 @@ export default withPWA({
           matchOptions: { ignoreSearch: true },
           expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 },
           cacheableResponse: { statuses: [0, 200] },
+          plugins: [
+            {
+              // Background Sync plugin
+              requestWillFetch: undefined,
+              catchHandler: undefined,
+              name: 'backgroundSync',
+              options: {
+                maxRetentionTime: 24 * 60, // minutes to retain queue
+                queueName: 'vocabs-write-queue',
+              },
+            } as any,
+          ],
         },
       },
       {

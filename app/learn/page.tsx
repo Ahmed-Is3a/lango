@@ -273,13 +273,21 @@ export default function LearnPage() {
           </h3>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {items.map((word, index) => (
-              <button
+              <div
                 key={word.id}
                 onClick={() => {
                   setCurrentIndex(index);
                   setIsFlipped(false);
                 }}
-                className={`rounded-lg border-2 p-4 text-left transition-all ${
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setCurrentIndex(index);
+                    setIsFlipped(false);
+                  }
+                }}
+                className={`rounded-lg border-2 p-4 text-left transition-all cursor-pointer ${
                   index === currentIndex
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
@@ -303,10 +311,10 @@ export default function LearnPage() {
                   )}
                 </div>
                 <div className="mt-3 flex gap-2">
-                  <button onClick={() => startEdit(word)} className="rounded-md border px-3 py-1 text-sm">Edit</button>
-                  <button onClick={() => removeItem(word.id)} className="rounded-md border px-3 py-1 text-sm text-red-600">Delete</button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border px-3 py-1 text-sm">Edit</button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border px-3 py-1 text-sm text-red-600">Delete</button>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
           {editingId !== null && (
