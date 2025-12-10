@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import getSupabaseBrowser from '@/lib/supabaseBrowser';
 
 type Vocab = {
   id: number;
@@ -19,6 +20,26 @@ export default function VocabsPage() {
   const [editing, setEditing] = useState<Vocab | null>(null);
 
   const load = async () => {
+    const supabase = getSupabaseBrowser();
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('vocabularies')
+        .select('id, term, definition, language, created_at')
+        .order('created_at', { ascending: false });
+      if (!error) {
+        setItems(
+          (data || []).map((r: any) => ({
+            id: Number(r.id),
+            term: r.term,
+            definition: r.definition,
+            language: r.language,
+            createdAt: r.created_at,
+          }))
+        );
+        return;
+      }
+    }
+    // Fallback to API if Supabase isn't configured client-side
     const res = await fetch('/api/vocabs');
     const json = await res.json();
     setItems(json.data || []);
@@ -27,20 +48,44 @@ export default function VocabsPage() {
   useEffect(() => { load(); }, []);
 
   const create = async () => {
-    const res = await fetch('/api/vocabs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ term, definition, language }) });
-    if (res.ok) {
-      setTerm(''); setDefinition('');
-      await load();
+    const supabase = getSupabaseBrowser();
+    if (supabase) {
+      const { error } = await supabase
+        .from('vocabularies')
+        .insert({ term, definition, language });
+      if (!error) {
+        setTerm(''); setDefinition('');
+        await load();
+        return;
+      }
     }
+    const res = await fetch('/api/vocabs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ term, definition, language }) });
+    if (res.ok) { setTerm(''); setDefinition(''); await load(); }
   };
 
   const save = async () => {
     if (!editing) return;
+    const supabase = getSupabaseBrowser();
+    if (supabase) {
+      const { error } = await supabase
+        .from('vocabularies')
+        .update({ term: editing.term, definition: editing.definition, language: editing.language })
+        .eq('id', editing.id);
+      if (!error) { setEditing(null); await load(); return; }
+    }
     const res = await fetch('/api/vocabs', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editing.id, term: editing.term, definition: editing.definition, language: editing.language }) });
     if (res.ok) { setEditing(null); await load(); }
   };
 
   const remove = async (id: number) => {
+    const supabase = getSupabaseBrowser();
+    if (supabase) {
+      const { error } = await supabase
+        .from('vocabularies')
+        .delete()
+        .eq('id', id);
+      if (!error) { await load(); return; }
+    }
     const res = await fetch(`/api/vocabs?id=${id}`, { method: 'DELETE' });
     if (res.ok) await load();
   };
