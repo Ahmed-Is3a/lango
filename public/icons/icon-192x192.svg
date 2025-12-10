@@ -1,16 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2563eb"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </linearGradient>
-  </defs>
-  <rect width="192" height="192" rx="32" fill="url(#g)"/>
-  <g fill="#fff" transform="translate(32,32)">
-    <rect x="0" y="0" width="128" height="96" rx="12" opacity="0.2"/>
-    <path d="M32 92c22-34 44-34 66 0" stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round"/>
-    <circle cx="48" cy="54" r="12" fill="#fff"/>
-    <circle cx="96" cy="54" r="12" fill="#fff"/>
-    <text x="64" y="132" font-size="40" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-weight="700">L</text>
-  </g>
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="32" fill="#4C6EF5"/>
+  <path d="M60 64C60 58.4772 64.4772 54 70 54H122C127.523 54 132 58.4772 132 64V128C132 133.523 127.523 138 122 138H84L64 154V138H70C64.4772 138 60 133.523 60 128V64Z" fill="white"/>
+  <text x="50%" y="50%" text-anchor="middle" dy=".35em" font-family="Inter, sans-serif" font-size="48" font-weight="bold" fill="#4C6EF5">
+    L
+  </text>
 </svg>
