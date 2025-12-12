@@ -86,6 +86,9 @@ Prisma.NullTypes = NullTypes
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -102,6 +105,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 
 exports.Prisma.ModelName = {
   Vocabulary: 'Vocabulary'
@@ -113,8 +121,8 @@ const config = {
   "previewFeatures": [],
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
-  "activeProvider": "sqlite",
-  "inlineSchema": "// SQLite datasource\ndatasource db {\n  provider = \"sqlite\"\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Vocabulary {\n  id         Int      @id @default(autoincrement())\n  term       String\n  definition String\n  language   String\n  createdAt  DateTime @default(now())\n}\n"
+  "activeProvider": "postgresql",
+  "inlineSchema": "// SQLite datasource\ndatasource db {\n  provider = \"postgres\"\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Vocabulary {\n  id         Int      @id @default(autoincrement())\n  term       String\n  definition String\n  language   String\n  createdAt  DateTime @default(now())\n}\n"
 }
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"Vocabulary\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"term\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"definition\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"language\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")

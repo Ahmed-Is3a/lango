@@ -888,6 +888,8 @@ export namespace Prisma {
     definition: string | null
     language: string | null
     createdAt: Date | null
+    exampleGerman: string | null
+    exampleEnglish: string | null
   }
 
   export type VocabularyMaxAggregateOutputType = {
@@ -896,6 +898,8 @@ export namespace Prisma {
     definition: string | null
     language: string | null
     createdAt: Date | null
+    exampleGerman: string | null
+    exampleEnglish: string | null
   }
 
   export type VocabularyCountAggregateOutputType = {
@@ -904,6 +908,8 @@ export namespace Prisma {
     definition: number
     language: number
     createdAt: number
+    exampleGerman: number
+    exampleEnglish: number
     _all: number
   }
 
@@ -922,6 +928,8 @@ export namespace Prisma {
     definition?: true
     language?: true
     createdAt?: true
+    exampleGerman?: true
+    exampleEnglish?: true
   }
 
   export type VocabularyMaxAggregateInputType = {
@@ -930,6 +938,8 @@ export namespace Prisma {
     definition?: true
     language?: true
     createdAt?: true
+    exampleGerman?: true
+    exampleEnglish?: true
   }
 
   export type VocabularyCountAggregateInputType = {
@@ -938,6 +948,8 @@ export namespace Prisma {
     definition?: true
     language?: true
     createdAt?: true
+    exampleGerman?: true
+    exampleEnglish?: true
     _all?: true
   }
 
@@ -1033,6 +1045,8 @@ export namespace Prisma {
     definition: string
     language: string
     createdAt: Date
+    exampleGerman: string | null
+    exampleEnglish: string | null
     _count: VocabularyCountAggregateOutputType | null
     _avg: VocabularyAvgAggregateOutputType | null
     _sum: VocabularySumAggregateOutputType | null
@@ -1060,6 +1074,8 @@ export namespace Prisma {
     definition?: boolean
     language?: boolean
     createdAt?: boolean
+    exampleGerman?: boolean
+    exampleEnglish?: boolean
   }, ExtArgs["result"]["vocabulary"]>
 
   export type VocabularySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1068,6 +1084,8 @@ export namespace Prisma {
     definition?: boolean
     language?: boolean
     createdAt?: boolean
+    exampleGerman?: boolean
+    exampleEnglish?: boolean
   }, ExtArgs["result"]["vocabulary"]>
 
   export type VocabularySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1076,6 +1094,8 @@ export namespace Prisma {
     definition?: boolean
     language?: boolean
     createdAt?: boolean
+    exampleGerman?: boolean
+    exampleEnglish?: boolean
   }, ExtArgs["result"]["vocabulary"]>
 
   export type VocabularySelectScalar = {
@@ -1084,9 +1104,11 @@ export namespace Prisma {
     definition?: boolean
     language?: boolean
     createdAt?: boolean
+    exampleGerman?: boolean
+    exampleEnglish?: boolean
   }
 
-  export type VocabularyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "term" | "definition" | "language" | "createdAt", ExtArgs["result"]["vocabulary"]>
+  export type VocabularyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "term" | "definition" | "language" | "createdAt" | "exampleGerman" | "exampleEnglish", ExtArgs["result"]["vocabulary"]>
 
   export type $VocabularyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Vocabulary"
@@ -1097,6 +1119,8 @@ export namespace Prisma {
       definition: string
       language: string
       createdAt: Date
+      exampleGerman: string | null
+      exampleEnglish: string | null
     }, ExtArgs["result"]["vocabulary"]>
     composites: {}
   }
@@ -1525,6 +1549,8 @@ export namespace Prisma {
     readonly definition: FieldRef<"Vocabulary", 'String'>
     readonly language: FieldRef<"Vocabulary", 'String'>
     readonly createdAt: FieldRef<"Vocabulary", 'DateTime'>
+    readonly exampleGerman: FieldRef<"Vocabulary", 'String'>
+    readonly exampleEnglish: FieldRef<"Vocabulary", 'String'>
   }
     
 
@@ -1910,7 +1936,9 @@ export namespace Prisma {
     term: 'term',
     definition: 'definition',
     language: 'language',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    exampleGerman: 'exampleGerman',
+    exampleEnglish: 'exampleEnglish'
   };
 
   export type VocabularyScalarFieldEnum = (typeof VocabularyScalarFieldEnum)[keyof typeof VocabularyScalarFieldEnum]
@@ -1930,6 +1958,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -2005,6 +2041,8 @@ export namespace Prisma {
     definition?: StringFilter<"Vocabulary"> | string
     language?: StringFilter<"Vocabulary"> | string
     createdAt?: DateTimeFilter<"Vocabulary"> | Date | string
+    exampleGerman?: StringNullableFilter<"Vocabulary"> | string | null
+    exampleEnglish?: StringNullableFilter<"Vocabulary"> | string | null
   }
 
   export type VocabularyOrderByWithRelationInput = {
@@ -2013,6 +2051,8 @@ export namespace Prisma {
     definition?: SortOrder
     language?: SortOrder
     createdAt?: SortOrder
+    exampleGerman?: SortOrderInput | SortOrder
+    exampleEnglish?: SortOrderInput | SortOrder
   }
 
   export type VocabularyWhereUniqueInput = Prisma.AtLeast<{
@@ -2024,6 +2064,8 @@ export namespace Prisma {
     definition?: StringFilter<"Vocabulary"> | string
     language?: StringFilter<"Vocabulary"> | string
     createdAt?: DateTimeFilter<"Vocabulary"> | Date | string
+    exampleGerman?: StringNullableFilter<"Vocabulary"> | string | null
+    exampleEnglish?: StringNullableFilter<"Vocabulary"> | string | null
   }, "id">
 
   export type VocabularyOrderByWithAggregationInput = {
@@ -2032,6 +2074,8 @@ export namespace Prisma {
     definition?: SortOrder
     language?: SortOrder
     createdAt?: SortOrder
+    exampleGerman?: SortOrderInput | SortOrder
+    exampleEnglish?: SortOrderInput | SortOrder
     _count?: VocabularyCountOrderByAggregateInput
     _avg?: VocabularyAvgOrderByAggregateInput
     _max?: VocabularyMaxOrderByAggregateInput
@@ -2048,6 +2092,8 @@ export namespace Prisma {
     definition?: StringWithAggregatesFilter<"Vocabulary"> | string
     language?: StringWithAggregatesFilter<"Vocabulary"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Vocabulary"> | Date | string
+    exampleGerman?: StringNullableWithAggregatesFilter<"Vocabulary"> | string | null
+    exampleEnglish?: StringNullableWithAggregatesFilter<"Vocabulary"> | string | null
   }
 
   export type VocabularyCreateInput = {
@@ -2055,6 +2101,8 @@ export namespace Prisma {
     definition: string
     language: string
     createdAt?: Date | string
+    exampleGerman?: string | null
+    exampleEnglish?: string | null
   }
 
   export type VocabularyUncheckedCreateInput = {
@@ -2063,6 +2111,8 @@ export namespace Prisma {
     definition: string
     language: string
     createdAt?: Date | string
+    exampleGerman?: string | null
+    exampleEnglish?: string | null
   }
 
   export type VocabularyUpdateInput = {
@@ -2070,6 +2120,8 @@ export namespace Prisma {
     definition?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exampleGerman?: NullableStringFieldUpdateOperationsInput | string | null
+    exampleEnglish?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VocabularyUncheckedUpdateInput = {
@@ -2078,6 +2130,8 @@ export namespace Prisma {
     definition?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exampleGerman?: NullableStringFieldUpdateOperationsInput | string | null
+    exampleEnglish?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VocabularyCreateManyInput = {
@@ -2086,6 +2140,8 @@ export namespace Prisma {
     definition: string
     language: string
     createdAt?: Date | string
+    exampleGerman?: string | null
+    exampleEnglish?: string | null
   }
 
   export type VocabularyUpdateManyMutationInput = {
@@ -2093,6 +2149,8 @@ export namespace Prisma {
     definition?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exampleGerman?: NullableStringFieldUpdateOperationsInput | string | null
+    exampleEnglish?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VocabularyUncheckedUpdateManyInput = {
@@ -2101,6 +2159,8 @@ export namespace Prisma {
     definition?: StringFieldUpdateOperationsInput | string
     language?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    exampleGerman?: NullableStringFieldUpdateOperationsInput | string | null
+    exampleEnglish?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -2140,12 +2200,34 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type VocabularyCountOrderByAggregateInput = {
     id?: SortOrder
     term?: SortOrder
     definition?: SortOrder
     language?: SortOrder
     createdAt?: SortOrder
+    exampleGerman?: SortOrder
+    exampleEnglish?: SortOrder
   }
 
   export type VocabularyAvgOrderByAggregateInput = {
@@ -2158,6 +2240,8 @@ export namespace Prisma {
     definition?: SortOrder
     language?: SortOrder
     createdAt?: SortOrder
+    exampleGerman?: SortOrder
+    exampleEnglish?: SortOrder
   }
 
   export type VocabularyMinOrderByAggregateInput = {
@@ -2166,6 +2250,8 @@ export namespace Prisma {
     definition?: SortOrder
     language?: SortOrder
     createdAt?: SortOrder
+    exampleGerman?: SortOrder
+    exampleEnglish?: SortOrder
   }
 
   export type VocabularySumOrderByAggregateInput = {
@@ -2220,12 +2306,34 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -2270,6 +2378,20 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -2328,6 +2450,34 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
 

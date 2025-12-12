@@ -1,27 +1,18 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import "dotenv/config";
+import { PrismaClient } from "../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const dataDir = path.join(process.cwd(), 'data');
-const dbPath = path.join(dataDir, 'lango.db');
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir);
+const globalForPrisma = global as unknown as {
+    prisma: PrismaClient
 }
 
-// Create database instance (shared across server runtime)
-const db = new Database(dbPath);
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+})
 
-db.pragma('journal_mode = WAL');
+const db = globalForPrisma.prisma || new PrismaClient({ adapter, })
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS vocabs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    term TEXT NOT NULL,
-    definition TEXT NOT NULL,
-    language TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-`);
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
 
-export default db;
+export default db

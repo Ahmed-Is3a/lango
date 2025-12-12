@@ -98,7 +98,9 @@ exports.Prisma.VocabularyScalarFieldEnum = {
   term: 'term',
   definition: 'definition',
   language: 'language',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  exampleGerman: 'exampleGerman',
+  exampleEnglish: 'exampleEnglish'
 };
 
 exports.Prisma.SortOrder = {
@@ -109,6 +111,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 
@@ -123,10 +130,10 @@ const config = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "// SQLite datasource\ndatasource db {\n  provider = \"postgres\"\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Vocabulary {\n  id         Int      @id @default(autoincrement())\n  term       String\n  definition String\n  language   String\n  createdAt  DateTime @default(now())\n}\n"
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgres\"\n}\n\nmodel Vocabulary {\n  id             Int      @id @default(autoincrement())\n  term           String\n  definition     String\n  language       String\n  createdAt      DateTime @default(now())\n  exampleGerman  String?\n  exampleEnglish String?\n}\n"
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Vocabulary\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"term\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"definition\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"language\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Vocabulary\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"term\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"definition\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"language\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"exampleGerman\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"exampleEnglish\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.compilerWasm = {
       getRuntime: async () => require('./query_compiler_bg.js'),

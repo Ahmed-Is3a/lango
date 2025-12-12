@@ -9,6 +9,9 @@ interface Vocab {
   definition: string;
   language: string;
   created_at: string;
+  // add optional example fields
+  exampleGerman?: string | null;
+  exampleEnglish?: string | null;
 }
 
 export default function LearnPage() {
@@ -24,8 +27,7 @@ export default function LearnPage() {
       try {
         const res = await fetch('/api/vocabs');
         if (!res.ok) throw new Error('Network');
-        const json = await res.json();
-        const data = json.data || [];
+        const data = await res.json() || [];
         setItems(data);
         // Cache snapshot locally for offline usage
         try {
@@ -69,16 +71,29 @@ export default function LearnPage() {
   const [newTerm, setNewTerm] = useState('');
   const [newDefinition, setNewDefinition] = useState('');
   const [newLanguage, setNewLanguage] = useState('en');
+  // add optional inputs for creation
+  const [newExampleGerman, setNewExampleGerman] = useState('');
+  const [newExampleEnglish, setNewExampleEnglish] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState('');
   const [editDefinition, setEditDefinition] = useState('');
   const [editLanguage, setEditLanguage] = useState('');
+  // add optional inputs for editing
+  const [editExampleGerman, setEditExampleGerman] = useState('');
+  const [editExampleEnglish, setEditExampleEnglish] = useState('');
 
   const addItem = async () => {
     const res = await fetch('/api/vocabs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ term: newTerm, definition: newDefinition, language: newLanguage }),
+      body: JSON.stringify({
+        term: newTerm,
+        definition: newDefinition,
+        language: newLanguage,
+        // send only if provided
+        exampleGerman: newExampleGerman.trim() || undefined,
+        exampleEnglish: newExampleEnglish.trim() || undefined,
+      }),
     });
     if (res.ok) {
       const json = await res.json();
@@ -91,21 +106,19 @@ export default function LearnPage() {
       });
       setNewTerm('');
       setNewDefinition('');
+      setNewExampleGerman('');
+      setNewExampleEnglish('');
     }
   };
 
   const startEdit = (v: Vocab) => {
-    setEditingId(v.id);
     setEditTerm(v.term);
     setEditDefinition(v.definition);
     setEditLanguage(v.language);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditTerm('');
-    setEditDefinition('');
-    setEditLanguage('');
+    // prefill optional fields
+    setEditExampleGerman(v.exampleGerman ?? '');
+    setEditExampleEnglish(v.exampleEnglish ?? '');
+    setEditingId(v.id);
   };
 
   const saveEdit = async () => {
@@ -113,7 +126,15 @@ export default function LearnPage() {
     const res = await fetch('/api/vocabs', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editingId, term: editTerm, definition: editDefinition, language: editLanguage }),
+      body: JSON.stringify({
+        id: editingId,
+        term: editTerm,
+        definition: editDefinition,
+        language: editLanguage,
+        // send only if provided
+        exampleGerman: editExampleGerman.trim() || undefined,
+        exampleEnglish: editExampleEnglish.trim() || undefined,
+      }),
     });
     if (res.ok) {
       const json = await res.json();
@@ -126,8 +147,21 @@ export default function LearnPage() {
     }
   };
 
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTerm('');
+    setEditDefinition('');
+    setEditLanguage('');
+    setEditExampleGerman('');
+    setEditExampleEnglish('');
+  };
+
   const removeItem = async (id: number) => {
     const res = await fetch(`/api/vocabs?id=${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to delete vocabulary");
+  }
     if (res.ok) {
       setItems((prev) => {
         const updated = prev.filter((p) => p.id !== id);
@@ -208,10 +242,17 @@ export default function LearnPage() {
                   <div className="mb-4 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold">
                     {currentItem?.language?.toUpperCase()}
                   </div>
-                  <h2 className="mb-6 text-6xl font-bold">
+                  <h2 className="mb-4 text-6xl font-bold">
                     {currentItem?.definition || ''}
                   </h2>
-                  <p className="text-sm opacity-75 italic">"{currentItem?.term}"</p>
+                  {/* show examples if present */}
+                  {currentItem?.exampleGerman && (
+                    <p className="text-sm opacity-80">DE: {currentItem.exampleGerman}</p>
+                  )}
+                  {currentItem?.exampleEnglish && (
+                    <p className="text-sm opacity-80">EN: {currentItem.exampleEnglish}</p>
+                  )}
+                  <p className="mt-2 text-sm opacity-75 italic">"{currentItem?.term}"</p>
                 </div>
               </div>
             </div>
@@ -264,6 +305,21 @@ export default function LearnPage() {
             />
             <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-2 text-white">Add</button>
           </div>
+          {/* optional examples */}
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <input
+              value={newExampleGerman}
+              onChange={(e) => setNewExampleGerman(e.target.value)}
+              placeholder="Example (German) — optional"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+            />
+            <input
+              value={newExampleEnglish}
+              onChange={(e) => setNewExampleEnglish(e.target.value)}
+              placeholder="Example (English) — optional"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+            />
+          </div>
         </div>
 
         {/* Word List */}
@@ -305,6 +361,13 @@ export default function LearnPage() {
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {word.definition}
                     </div>
+                    {/* inline examples if present */}
+                    {word.exampleGerman && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400">DE: {word.exampleGerman}</div>
+                    )}
+                    {word.exampleEnglish && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400">EN: {word.exampleEnglish}</div>
+                    )}
                   </div>
                   {learnedWords.has(word.id) && (
                     <span className="text-xl">✓</span>
@@ -328,6 +391,21 @@ export default function LearnPage() {
                   <button onClick={saveEdit} className="rounded-md bg-blue-600 px-4 py-2 text-white">Save</button>
                   <button onClick={cancelEdit} className="rounded-md border px-4 py-2">Cancel</button>
                 </div>
+              </div>
+              {/* optional examples edit */}
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <input
+                  value={editExampleGerman}
+                  onChange={(e) => setEditExampleGerman(e.target.value)}
+                  placeholder="Example (German) — optional"
+                  className="rounded-md border px-3 py-2 dark:bg-gray-900"
+                />
+                <input
+                  value={editExampleEnglish}
+                  onChange={(e) => setEditExampleEnglish(e.target.value)}
+                  placeholder="Example (English) — optional"
+                  className="rounded-md border px-3 py-2 dark:bg-gray-900"
+                />
               </div>
             </div>
           )}

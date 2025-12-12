@@ -125,7 +125,9 @@ exports.Prisma.VocabularyScalarFieldEnum = {
   term: 'term',
   definition: 'definition',
   language: 'language',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  exampleGerman: 'exampleGerman',
+  exampleEnglish: 'exampleEnglish'
 };
 
 exports.Prisma.SortOrder = {
@@ -136,6 +138,11 @@ exports.Prisma.SortOrder = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 

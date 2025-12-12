@@ -7,14 +7,12 @@ datasource db {
   provider = "postgres"
 }
 
-
 model Vocabulary {
-  id          Int      @id @default(autoincrement())
-  term        String
-  definition  String
-  language    String
-  createdAt   DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  term           String
+  definition     String
+  language       String
+  createdAt      DateTime @default(now())
   exampleGerman  String?
   exampleEnglish String?
 }
-

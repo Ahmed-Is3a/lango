@@ -1,6 +1,6 @@
 // SQLite datasource
 datasource db {
-  provider = "sqlite"
+  provider = "postgres"
 }
 
 generator client {
