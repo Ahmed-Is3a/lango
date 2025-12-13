@@ -252,7 +252,7 @@ export default function LearnPage() {
                   {currentItem?.exampleEnglish && (
                     <p className="text-sm opacity-80">EN: {currentItem.exampleEnglish}</p>
                   )}
-                  <p className="mt-2 text-sm opacity-75 italic">"{currentItem?.term}"</p>
+                  <p className="mt-2 text-sm opacity-75 italic">&ldquo;{currentItem?.term}&rdquo;</p>
                 </div>
               </div>
             </div>
@@ -328,7 +328,7 @@ export default function LearnPage() {
             All Words ({items.length})
           </h3>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((word, index) => (
+            {items.filter(Boolean).map((word, index) => (
               <div
                 key={word.id}
                 onClick={() => {
@@ -348,7 +348,7 @@ export default function LearnPage() {
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
                 } ${
-                  learnedWords.has(word.id)
+                  learnedWords.has(word?.id)
                     ? 'bg-green-50 dark:bg-green-900/20'
                     : ''
                 }`}
@@ -356,20 +356,20 @@ export default function LearnPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-semibold text-gray-800 dark:text-gray-200">
-                      {word.term}
+                      {word?.term}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {word.definition}
+                      {word?.definition}
                     </div>
                     {/* inline examples if present */}
-                    {word.exampleGerman && (
+                    {word?.exampleGerman && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">DE: {word.exampleGerman}</div>
                     )}
-                    {word.exampleEnglish && (
+                    {word?.exampleEnglish && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">EN: {word.exampleEnglish}</div>
                     )}
                   </div>
-                  {learnedWords.has(word.id) && (
+                  {learnedWords.has(word?.id) && (
                     <span className="text-xl">✓</span>
                   )}
                 </div>
