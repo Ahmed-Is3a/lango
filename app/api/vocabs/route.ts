@@ -1,9 +1,5 @@
-import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma'
-import getSupabaseClient from '@/lib/supabase';
-
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 
 export async function GET() {
@@ -52,55 +48,6 @@ export async function POST(req: Request) {
 }
 
 
-
-
-
-export async function PUT(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { id, term, definition, language, exampleGerman, exampleEnglish } = body || {};
-    if (!id) return Response.json({ error: 'Missing id' }, { status: 400 });
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data, error } = await supabase
-        .from('vocabularies')
-        .update({
-          term,
-          definition,
-          language,
-          // optional examples
-          exampleGerman: exampleGerman ?? null,
-          exampleEnglish: exampleEnglish ?? null,
-        })
-        .eq('id', id)
-        .select('id, term, definition, language, exampleGerman, exampleEnglish, created_at')
-        .single();
-      if (error) return Response.json({ error: error.message }, { status: 500 });
-      const updated = {
-        id: Number(data!.id),
-        term: data!.term,
-        definition: data!.definition,
-        language: data!.language,
-        exampleGerman: data!.exampleGerman ?? null,
-        exampleEnglish: data!.exampleEnglish ?? null,
-        createdAt: data!.created_at,
-      };
-      return Response.json({ data: updated });
-    } else {
-      const updated = await prisma.vocabulary.update({
-        where: { id: Number(id) },
-        data: {
-          term,
-          definition,
-          language,
-        },
-      });
-      return Response.json({ data: updated });
-    }
-  } catch {
-    return Response.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-}
 
 import { NextResponse } from "next/server";
 
