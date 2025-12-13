@@ -34,6 +34,9 @@ export async function POST(req: Request) {
         term,
         definition,
         language,
+        // optional examples; store null when not provided
+        exampleGerman: exampleGerman ?? null,
+        exampleEnglish: exampleEnglish ?? null,
       },
     });
 
