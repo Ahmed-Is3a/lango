@@ -16,8 +16,11 @@ export const metadata: Metadata = {
   title: "Lango - Language Learning App",
   description: "Master languages one word at a time with interactive flashcards and quizzes",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
 };
+
+export const viewport = {
+  themeColor: "#2563eb",
+}
 
 export default function RootLayout({
   children,
