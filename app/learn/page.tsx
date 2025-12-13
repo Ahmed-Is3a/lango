@@ -179,24 +179,24 @@ export default function LearnPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <Link
             href="/"
             className="text-lg font-semibold text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
-            ← Back to Home
+            <span className='text-3xl'> ← </span> Back
           </Link>
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+          <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Learn Vocabulary
           </h1>
-          <div className="w-24"></div>
+          <div className="w-16"></div>
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-300">
+        <div className="mb-6">
+          <div className="mb-1 flex justify-between text-sm text-gray-600 dark:text-gray-300">
             <span>
               Progress: {learnedWords.size} / {items.length} words
             </span>
@@ -211,9 +211,9 @@ export default function LearnPage() {
         </div>
 
         {/* Flashcard */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-6 flex justify-center">
           <div
-            className="relative h-96 w-full max-w-2xl cursor-pointer perspective-1000"
+            className="relative h-90 w-full max-w-2xl cursor-pointer perspective-1000"
             onClick={handleFlip}
           >
             <div
@@ -224,35 +224,35 @@ export default function LearnPage() {
               {/* Front of card */}
               <div className="absolute inset-0 backface-hidden rounded-2xl bg-white p-12 shadow-2xl dark:bg-gray-800">
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="mb-4 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                  <div className="mb-5 rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900 dark:text-blue-200">
                     {currentItem?.language?.toUpperCase() || 'LANG'}
                   </div>
-                  <h2 className="mb-6 text-6xl font-bold text-gray-800 dark:text-gray-200">
+                  <h2 className="mb-6 text-5xl font-bold text-gray-800 dark:text-gray-200">
                     {currentItem?.term || 'No items yet'}
                   </h2>
-                  <p className="text-lg text-gray-500 dark:text-gray-400">
+                  <p className="text-gray-500 dark:text-gray-400">
                     Click to reveal translation
                   </p>
                 </div>
               </div>
 
               {/* Back of card */}
-              <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-12 shadow-2xl">
+              <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-8 shadow-2xl">
                 <div className="flex h-full flex-col items-center justify-center text-center text-white">
                   <div className="mb-4 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold">
                     {currentItem?.language?.toUpperCase()}
                   </div>
-                  <h2 className="mb-4 text-6xl font-bold">
+                  <h2 className="mb-4 text-5xl font-bold">
                     {currentItem?.definition || ''}
                   </h2>
                   {/* show examples if present */}
                   {currentItem?.exampleGerman && (
-                    <p className="text-sm opacity-80">DE: {currentItem.exampleGerman}</p>
+                    <p className="opacity-80">DE: {currentItem.exampleGerman}</p>
                   )}
                   {currentItem?.exampleEnglish && (
-                    <p className="text-sm opacity-80">EN: {currentItem.exampleEnglish}</p>
+                    <p className="opacity-80">EN: {currentItem.exampleEnglish}</p>
                   )}
-                  <p className="mt-2 text-sm opacity-75 italic">&ldquo;{currentItem?.term}&rdquo;</p>
+                  <p className="mt-3 text-sm opacity-70 italic">&ldquo;{currentItem?.term}&rdquo;</p>
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function LearnPage() {
         </div>
 
         {/* Controls */}
-        <div className="mb-8 flex justify-center gap-4">
+        <div className="mb-8 flex justify-center gap-5">
           <button
             onClick={handlePrevious}
             className="rounded-full bg-white px-6 py-3 font-semibold text-gray-700 shadow-lg transition-all hover:scale-105 hover:shadow-xl dark:bg-gray-800 dark:text-gray-200"
@@ -269,7 +269,7 @@ export default function LearnPage() {
           </button>
           <button
             onClick={handleFlip}
-            className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+            className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 w-42 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
           >
             {isFlipped ? 'Show Word' : 'Show Translation'}
           </button>
@@ -284,41 +284,38 @@ export default function LearnPage() {
         {/* Add New Vocab */}
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
           <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">Add New Term</h3>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
             <input
               value={newTerm}
               onChange={(e) => setNewTerm(e.target.value)}
               placeholder="Term"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newDefinition}
               onChange={(e) => setNewDefinition(e.target.value)}
               placeholder="Definition"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newLanguage}
               onChange={(e) => setNewLanguage(e.target.value)}
               placeholder="Language (e.g., en, es)"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
-            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-2 text-white">Add</button>
-          </div>
-          {/* optional examples */}
-          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             <input
               value={newExampleGerman}
               onChange={(e) => setNewExampleGerman(e.target.value)}
               placeholder="Example (German) — optional"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newExampleEnglish}
               onChange={(e) => setNewExampleEnglish(e.target.value)}
               placeholder="Example (English) — optional"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
+            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold">Add</button>
           </div>
         </div>
 
@@ -373,9 +370,9 @@ export default function LearnPage() {
                     <span className="text-xl">✓</span>
                   )}
                 </div>
-                <div className="mt-3 flex gap-2">
-                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border px-3 py-1 text-sm">Edit</button>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border px-3 py-1 text-sm text-red-600">Delete</button>
+                <div className="mt-3 flex gap-3">
+                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border px-5 py-1 text-sm text-gray-200">Edit</button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border px-3 py-1 text-sm text-red-400">Delete</button>
                 </div>
               </div>
             ))}

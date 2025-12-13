@@ -12,10 +12,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-2">
         {/* Header */}
-        <header className="mb-12 text-center">
-          <h1 className="mb-4 text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+        <header className="mb-8 text-center">
+          <h1 className="mb-2 text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
             Lango
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -24,7 +24,7 @@ export default function Home() {
         </header>
 
         {/* Stats Cards */}
-        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-3">
           <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
             <div className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-400">
               Words Learned
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
 
         {/* Main Actions */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/learn"
             className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
