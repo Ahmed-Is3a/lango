@@ -20,6 +20,31 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    // Support both single object and array of objects
+    if (Array.isArray(body)) {
+      if (body.length === 0) {
+        return NextResponse.json({ error: "No items provided" }, { status: 400 });
+      }
+
+      const data = body.map((item) => {
+        const { term, definition, language, exampleGerman, exampleEnglish } = item || {};
+        if (!term || !definition || !language) {
+          throw new Error("Each item requires term, definition, and language");
+        }
+        return {
+          term,
+          definition,
+          language,
+          exampleGerman: exampleGerman ?? null,
+          exampleEnglish: exampleEnglish ?? null,
+        };
+      });
+
+      const result = await prisma.vocabulary.createMany({ data, skipDuplicates: true });
+      return NextResponse.json({ count: result.count }, { status: 201 });
+    }
+
     const { term, definition, language, exampleGerman, exampleEnglish } = body;
 
     if (!term || !definition || !language) {
