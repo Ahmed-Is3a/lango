@@ -11,40 +11,63 @@ export default withPWA({
   register: true,
   workboxOptions: {
     navigateFallback: "/offline.html",
+
     runtimeCaching: [
+      // ✅ ALL PAGES (including /)
       {
-        urlPattern: ({ url }) => url.pathname.startsWith('/api/vocabs'),
-        handler: 'NetworkFirst',
+        urlPattern: ({ request }) => request.mode === "navigate",
+        handler: "NetworkFirst",
         options: {
-          cacheName: 'api-vocabs',
-          networkTimeoutSeconds: 3,
-          matchOptions: { ignoreSearch: true },
-          expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 },
+          cacheName: "pages",
+          networkTimeoutSeconds: 5,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24,
+          },
           cacheableResponse: { statuses: [0, 200] },
-          plugins: [
-            {
-              // Background Sync plugin
-              requestWillFetch: undefined,
-              catchHandler: undefined,
-              name: 'backgroundSync',
-              options: {
-                maxRetentionTime: 24 * 60, // minutes to retain queue
-                queueName: 'vocabs-write-queue',
-              },
-            } as any,
-          ],
         },
       },
+
+      // ✅ API
       {
-        urlPattern: ({ request }) => request.destination === 'document',
-        handler: 'NetworkFirst',
-        options: { cacheName: 'pages' },
+        urlPattern: ({ url }) => url.pathname.startsWith("/api/vocabs"),
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "api-vocabs",
+          networkTimeoutSeconds: 5,
+          matchOptions: { ignoreSearch: true },
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 7,
+          },
+          cacheableResponse: { statuses: [0, 200] },
+        },
       },
+
+      // ✅ Styles
       {
-        urlPattern: ({ request }) => ['style', 'script', 'worker'].includes(request.destination),
-        handler: 'StaleWhileRevalidate',
-        options: { cacheName: 'assets' },
+        urlPattern: ({ request }) => request.destination === "style",
+        handler: "CacheFirst",
+        options: {
+          cacheName: "styles",
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+
+      // ✅ Scripts & workers
+      {
+        urlPattern: ({ request }) =>
+          request.destination === "script" ||
+          request.destination === "worker",
+        handler: "StaleWhileRevalidate",
+        options: {
+          cacheName: "assets",
+        },
       },
     ],
+
   },
 })(nextConfig);
