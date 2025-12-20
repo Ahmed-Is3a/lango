@@ -22,4 +22,5 @@ model Vocabulary {
   createdAt   DateTime @default(now())
   exampleGerman  String?
   exampleEnglish String?
+  imageUrl    String?
 }
