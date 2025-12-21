@@ -12,6 +12,7 @@ interface Vocab {
   // add optional example fields
   exampleGerman?: string | null;
   exampleEnglish?: string | null;
+  imageUrl?: string | null;
 }
 
 export default function LearnPage() {
@@ -70,10 +71,11 @@ export default function LearnPage() {
 
   const [newTerm, setNewTerm] = useState('');
   const [newDefinition, setNewDefinition] = useState('');
-  const [newLanguage, setNewLanguage] = useState('en');
+  const [newLanguage, setNewLanguage] = useState('de');
   // add optional inputs for creation
   const [newExampleGerman, setNewExampleGerman] = useState('');
   const [newExampleEnglish, setNewExampleEnglish] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTerm, setEditTerm] = useState('');
   const [editDefinition, setEditDefinition] = useState('');
@@ -93,6 +95,7 @@ export default function LearnPage() {
         // send only if provided
         exampleGerman: newExampleGerman.trim() || undefined,
         exampleEnglish: newExampleEnglish.trim() || undefined,
+        imageUrl: newImageUrl.trim() || undefined,
       }),
     });
     if (res.ok) {
@@ -239,18 +242,27 @@ export default function LearnPage() {
               {/* Back of card */}
               <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-8 shadow-2xl">
                 <div className="flex h-full flex-col items-center justify-center text-center text-white">
-                  <div className="mb-4 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold">
+                  {/* <div className="mb-2 rounded-full bg-white/20 px-4 py-2  font-semibold">
                     {currentItem?.language?.toUpperCase()}
-                  </div>
+                  </div> */}
                   <h2 className="mb-4 text-5xl font-bold">
                     {currentItem?.definition || ''}
                   </h2>
-                  {/* show examples if present */}
+                  {currentItem?.imageUrl && (
+                    <img src={currentItem.imageUrl} alt={currentItem.term} className="mb-2 h-35 rounded-lg" />
+                  )}
+                  {/* show examples if present, aligned to the same start */}
                   {currentItem?.exampleGerman && (
-                    <p className="opacity-80">DE: {currentItem.exampleGerman}</p>
+                    <div className="opacity-80 w-full max-w-md mx-auto text-left flex gap-2">
+                      <span className="">DE:  </span>
+                      <span className="flex-1">{currentItem.exampleGerman}</span>
+                    </div>
                   )}
                   {currentItem?.exampleEnglish && (
-                    <p className="opacity-80">EN: {currentItem.exampleEnglish}</p>
+                    <div className="opacity-80 w-full max-w-md mx-auto text-left flex gap-2">
+                      <span className="">EN:</span>
+                      <span className="flex-1">{currentItem.exampleEnglish}</span>
+                    </div>
                   )}
                   <p className="mt-3 text-sm opacity-70 italic">&ldquo;{currentItem?.term}&rdquo;</p>
                 </div>
@@ -280,6 +292,7 @@ export default function LearnPage() {
             Next →
           </button>
         </div>
+
 
         {/* Add New Vocab */}
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
@@ -315,9 +328,16 @@ export default function LearnPage() {
               placeholder="Example (English) — optional"
               className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
+            <input
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="Image URL — optional"
+              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+            />
             <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold">Add</button>
           </div>
         </div>
+
 
         {/* Word List */}
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">

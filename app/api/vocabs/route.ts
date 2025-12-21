@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ count: result.count }, { status: 201 });
     }
 
-    const { term, definition, language, exampleGerman, exampleEnglish } = body;
+    const { term, definition, language, exampleGerman, exampleEnglish, imageUrl } = body;
 
     if (!term || !definition || !language) {
       return NextResponse.json(
@@ -62,6 +62,7 @@ export async function POST(req: Request) {
         // optional examples; store null when not provided
         exampleGerman: exampleGerman ?? null,
         exampleEnglish: exampleEnglish ?? null,
+        imageUrl: imageUrl ?? null
       },
     });
 
