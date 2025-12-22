@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       }
 
       const data = body.map((item) => {
-        const { term, definition, language, exampleGerman, exampleEnglish } = item || {};
+        const { term, definition, language, exampleGerman, exampleEnglish, imageUrl } = item || {};
         if (!term || !definition || !language) {
           throw new Error("Each item requires term, definition, and language");
         }
@@ -38,6 +38,7 @@ export async function POST(req: Request) {
           language,
           exampleGerman: exampleGerman ?? null,
           exampleEnglish: exampleEnglish ?? null,
+          imageUrl: imageUrl ?? null,
         };
       });
 
