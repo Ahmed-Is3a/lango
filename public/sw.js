@@ -8,21 +8,31 @@ const ASSET_CACHE = `assets-${VERSION}`;
 const PRECACHE_URLS = ["/offline.html"];
 
 self.addEventListener("install", (event) => {
+  console.log("[SW] Installing...");
   self.skipWaiting();
   event.waitUntil(
-    caches.open(PRECACHE).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches
+      .open(PRECACHE)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => console.log("[SW] Precache installed"))
+      .catch((err) => console.error("[SW] Precache failed:", err))
   );
 });
 
 self.addEventListener("activate", (event) => {
+  console.log("[SW] Activating...");
   const allowlist = [PRECACHE, PAGE_CACHE, API_CACHE, STYLE_CACHE, ASSET_CACHE];
   event.waitUntil(
     caches
       .keys()
-      .then((keys) =>
-        Promise.all(keys.map((k) => (allowlist.includes(k) ? undefined : caches.delete(k))))
-      )
+      .then((keys) => {
+        console.log("[SW] Found caches:", keys);
+        return Promise.all(
+          keys.map((k) => (allowlist.includes(k) ? undefined : caches.delete(k)))
+        );
+      })
       .then(() => self.clients.claim())
+      .then(() => console.log("[SW] Activated and claimed"))
   );
 });
 
@@ -31,9 +41,11 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
-  
+
   // Only handle http/https requests
-//   if (!url.protocol.startsWith("http")) return;
+  if (!url.protocol.startsWith("http")) return;
+
+  console.log("[SW] Fetch:", request.mode, url.pathname);
 
   if (request.mode === "navigate") {
     event.respondWith(
