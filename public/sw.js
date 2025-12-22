@@ -64,12 +64,14 @@ async function networkFirst(request, cacheName, timeoutMs) {
   const cache = await caches.open(cacheName);
   try {
     const response = await withTimeout(fetch(request, { credentials: "same-origin" }), timeoutMs);
-    if (isCacheable(response)) cache.put(request, response.clone());
+    if (isCacheable(response)) {
+      cache.put(request, response.clone()).catch(() => {});
+    }
     return response;
-  } catch (_) {
+  } catch (error) {
     const cached = await cache.match(request);
     if (cached) return cached;
-    throw _;
+    throw error;
   }
 }
 
@@ -77,9 +79,15 @@ async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if (cached) return cached;
-  const response = await fetch(request, { credentials: "same-origin" });
-  if (isCacheable(response)) cache.put(request, response.clone());
-  return response;
+  try {
+    const response = await fetch(request, { credentials: "same-origin" });
+    if (isCacheable(response)) {
+      cache.put(request, response.clone()).catch(() => {});
+    }
+    return response;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function staleWhileRevalidate(request, cacheName) {
@@ -87,7 +95,9 @@ async function staleWhileRevalidate(request, cacheName) {
   const cached = await cache.match(request);
   const networkPromise = fetch(request, { credentials: "same-origin" })
     .then((response) => {
-      if (isCacheable(response)) cache.put(request, response.clone());
+      if (isCacheable(response)) {
+        cache.put(request, response.clone()).catch(() => {});
+      }
       return response;
     })
     .catch(() => cached);

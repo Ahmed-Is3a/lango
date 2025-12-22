@@ -7,10 +7,21 @@ export default function SwRegister() {
     if ('serviceWorker' in navigator) {
       const register = async () => {
         try {
-          await navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        } catch {}
+          const registration = await navigator.serviceWorker.register('/sw.js', { 
+            scope: '/',
+            updateViaCache: 'none' 
+          })
+          console.log('Service Worker registered:', registration)
+        } catch (error) {
+          console.error('Service Worker registration failed:', error)
+        }
       }
-      register()
+      // Wait for page to fully load before registering
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', register)
+      } else {
+        register()
+      }
     }
   }, [])
   return null
