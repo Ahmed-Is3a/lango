@@ -33,7 +33,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   
   // Only handle http/https requests
-  if (!url.protocol.startsWith("http")) return;
+//   if (!url.protocol.startsWith("http")) return;
 
   if (request.mode === "navigate") {
     event.respondWith(
