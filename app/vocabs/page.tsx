@@ -1,4 +1,4 @@
-"use client"; // needed because we now have a client-side form
+"use client"; // needed because we have a client-side form
 
 import { useState, useEffect } from "react";
 
@@ -10,6 +10,7 @@ type Vocabulary = {
   createdAt: string;
   exampleGerman?: string | null;
   exampleEnglish?: string | null;
+  imageUrl?: string | null;
 };
 
 export default function VocabularyPage() {
