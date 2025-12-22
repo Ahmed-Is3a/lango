@@ -20,6 +20,7 @@ export default function VocabularyPage() {
   const [language, setLanguage] = useState("");
   const [exampleGerman, setExampleGerman] = useState("");
   const [exampleEnglish, setExampleEnglish] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Fetch vocabularies from API
@@ -53,6 +54,7 @@ export default function VocabularyPage() {
           language,
           exampleGerman: exampleGerman.trim() || undefined,
           exampleEnglish: exampleEnglish.trim() || undefined,
+          imageUrl: imageUrl.trim() || undefined,
         }),
       });
       console.log(res);
@@ -68,6 +70,7 @@ export default function VocabularyPage() {
       setLanguage("");
       setExampleGerman("");
       setExampleEnglish("");
+      setImageUrl("");
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -118,6 +121,11 @@ export default function VocabularyPage() {
           placeholder="Example (English) — optional"
           value={exampleEnglish}
           onChange={(e) => setExampleEnglish(e.target.value)}
+        />
+        <input
+          placeholder="Image URL — optional"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
         />
         <button type="submit" disabled={loading}>
           {loading ? "Saving..." : "Add Vocabulary"}
