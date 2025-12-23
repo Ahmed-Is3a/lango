@@ -24,3 +24,12 @@ model Vocabulary {
   exampleEnglish String?
   imageUrl    String?
 }
+
+model QuizQuestion {
+  id            Int      @id @default(autoincrement())
+  question      String
+  options       String[]
+  correctAnswer Int
+  explanation   String?
+  createdAt     DateTime @default(now())
+}
