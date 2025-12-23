@@ -11,80 +11,10 @@ interface Question {
   explanation: string;
 }
 
-const questions: Question[] = [
-  {
-    id: 1,
-    question: 'What is the Spanish translation of "Hello"?',
-    options: ['Hola', 'Adiós', 'Gracias', 'Por favor'],
-    correctAnswer: 0,
-    explanation: '"Hola" is the Spanish word for "Hello".',
-  },
-  {
-    id: 2,
-    question: 'How do you say "Thank you" in Spanish?',
-    options: ['Por favor', 'Gracias', 'Adiós', 'Amigo'],
-    correctAnswer: 1,
-    explanation: '"Gracias" means "Thank you" in Spanish.',
-  },
-  {
-    id: 3,
-    question: 'What does "Agua" mean in English?',
-    options: ['Food', 'Friend', 'Water', 'House'],
-    correctAnswer: 2,
-    explanation: '"Agua" is the Spanish word for "Water".',
-  },
-  {
-    id: 4,
-    question: 'Translate "Amigo" to English:',
-    options: ['House', 'Friend', 'Love', 'Beautiful'],
-    correctAnswer: 1,
-    explanation: '"Amigo" means "Friend" in English.',
-  },
-  {
-    id: 5,
-    question: 'What is "Casa" in English?',
-    options: ['Car', 'Cat', 'House', 'Case'],
-    correctAnswer: 2,
-    explanation: '"Casa" is the Spanish word for "House".',
-  },
-  {
-    id: 6,
-    question: 'How do you say "Please" in Spanish?',
-    options: ['Por favor', 'Gracias', 'Hola', 'Adiós'],
-    correctAnswer: 0,
-    explanation: '"Por favor" means "Please" in Spanish.',
-  },
-  {
-    id: 7,
-    question: 'What does "Comida" mean?',
-    options: ['Come', 'Food', 'Friend', 'Beautiful'],
-    correctAnswer: 1,
-    explanation: '"Comida" is the Spanish word for "Food".',
-  },
-  {
-    id: 8,
-    question: 'Translate "Hermoso" to English:',
-    options: ['Hermit', 'Beautiful', 'Hero', 'Harmony'],
-    correctAnswer: 1,
-    explanation: '"Hermoso" means "Beautiful" in English.',
-  },
-  {
-    id: 9,
-    question: 'What is "Amor" in English?',
-    options: ['Armor', 'Amour', 'Love', 'More'],
-    correctAnswer: 2,
-    explanation: '"Amor" is the Spanish word for "Love".',
-  },
-  {
-    id: 10,
-    question: 'How do you say "Goodbye" in Spanish?',
-    options: ['Hola', 'Gracias', 'Adiós', 'Por favor'],
-    correctAnswer: 2,
-    explanation: '"Adiós" means "Goodbye" in Spanish.',
-  },
-];
-
 export default function QuizPage() {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -94,8 +24,28 @@ export default function QuizPage() {
     new Set()
   );
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/quiz');
+        if (!res.ok) throw new Error('Failed to fetch quiz');
+        const data = (await res.json()) as Question[];
+        setQuestions(data);
+        setError(null);
+      } catch (err: any) {
+        setError(err?.message || 'Unable to load quiz questions; using fallback data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
   const currentQuestion = questions[currentQuestionIndex];
-  const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+  const isCorrect = currentQuestion
+    ? selectedAnswer === currentQuestion.correctAnswer
+    : false;
 
   const handleAnswerSelect = (index: number) => {
     if (showResult) return;
@@ -132,7 +82,33 @@ export default function QuizPage() {
     setAnsweredQuestions(new Set());
   };
 
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const progress = questions.length
+    ? ((currentQuestionIndex + 1) / questions.length) * 100
+    : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mx-auto max-w-3xl text-center text-gray-600 dark:text-gray-300">
+            Loading quiz...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questions.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mx-auto max-w-3xl text-center text-gray-600 dark:text-gray-300">
+            No quiz questions available.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (quizCompleted) {
     const percentage = Math.round((score / questions.length) * 100);
@@ -200,7 +176,7 @@ export default function QuizPage() {
               href="/"
               className="text-lg font-semibold text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              ← Back to Home
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
             </Link>
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
               Quiz
@@ -209,6 +185,12 @@ export default function QuizPage() {
               Score: {score} / {questions.length}
             </div>
           </div>
+
+          {error && (
+            <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
+              {error}
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="mb-8">
