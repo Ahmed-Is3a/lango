@@ -184,12 +184,12 @@ export default function LearnPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-4">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/"
             className="text-lg font-semibold text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
-            <span className='text-3xl'> ← </span> Back
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
           </Link>
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Learn Vocabulary
@@ -225,7 +225,7 @@ export default function LearnPage() {
               }`}
             >
               {/* Front of card */}
-              <div className="absolute inset-0 backface-hidden rounded-2xl bg-white p-12 shadow-2xl dark:bg-gray-800">
+              <div className="absolute inset-0 backface-hidden rounded-2xl border border-gray-300 bg-white p-12 shadow-2xl dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <div className="mb-5 rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900 dark:text-blue-200">
                     {currentItem?.language?.toUpperCase() || 'LANG'}
