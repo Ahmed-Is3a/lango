@@ -1,4 +1,9 @@
+/* globals.css */
 @import "tailwindcss";
+
+nav a:active {
+  transform: scale(0.95);
+}
 
 body {
   background: var(--background);
