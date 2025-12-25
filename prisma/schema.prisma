@@ -8,6 +8,15 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum StoryLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
@@ -32,4 +41,18 @@ model QuizQuestion {
   correctAnswer Int
   explanation   String?
   createdAt     DateTime @default(now())
+}
+
+model Story {
+  id           Int         @id @default(autoincrement())
+  title        String
+  slug         String      @unique
+  content      String
+  translation  String
+  coverImage   String?
+  audioUrl     String?
+  level        StoryLevel  @default(A1)
+  language     String      @default("en")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
