@@ -68,6 +68,20 @@ export default function Home() {
           </Link>
 
           <Link
+            href="/stories"
+            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
+          >
+            <div className="relative z-10">
+              <div className="mb-4 text-5xl">📖</div>
+              <h2 className="mb-2 text-2xl font-bold">Read Stories</h2>
+              <p className="text-amber-100">
+                Immerse yourself in short stories with translations
+              </p>
+            </div>
+            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white opacity-10 group-hover:scale-150 transition-transform"></div>
+          </Link>
+          
+          <Link
             href="/quiz"
             className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 p-8 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl"
           >
