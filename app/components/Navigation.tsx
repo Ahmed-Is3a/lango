@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const navItems = [
   { href: '/', label: 'Home', icon: '🏠' },
   { href: '/learn', label: 'Vocabs', icon: '🔤' },
+  { href: '/stories', label: 'Stories', icon: '📖' },
   { href: '/quiz', label: 'Quiz', icon: '✏️' },
   { href: '/progress', label: 'Progress', icon: '📊' },
 ];
@@ -52,7 +53,7 @@ export default function Navigation() {
                 : 'text-gray-500 dark:text-gray-400'
             }`}
           >
-            <span className="text-xl">{item.icon}</span>
+            <span className="text-1xl">{item.icon}</span>
             {item.label}
           </Link>
         ))}
