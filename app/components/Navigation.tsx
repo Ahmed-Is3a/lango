@@ -7,6 +7,7 @@ const navItems = [
   { href: '/', label: 'Home', icon: '🏠' },
   { href: '/learn', label: 'Vocabs', icon: '🔤' },
   { href: '/stories', label: 'Stories', icon: '📖' },
+  { href: '/levels', label: 'Levels', icon: '🧭' }, // NEW
   { href: '/quiz', label: 'Quiz', icon: '✏️' },
   { href: '/progress', label: 'Progress', icon: '📊' },
 ];
