@@ -1,6 +1,6 @@
 'use client';
 
-export type BlockType = 'title' | 'header' | 'subheader' | 'paragraph' | 'table' | 'audio' | 'youtube';
+export type BlockType = 'title' | 'header' | 'subheader' | 'paragraph' | 'table' | 'audio' | 'youtube' | 'image';
 
 export type TextBlock = {
   type: 'title' | 'header' | 'subheader' | 'paragraph';
@@ -26,7 +26,14 @@ export type YouTubeBlock = {
   caption?: string;
 };
 
-export type Block = TextBlock | TableBlock | AudioBlock | YouTubeBlock;
+export type ImageBlock = {
+  type: 'image';
+  src: string;
+  alt?: string;
+  caption?: string;
+};
+
+export type Block = TextBlock | TableBlock | AudioBlock | YouTubeBlock | ImageBlock;
 
 export const emptyBlock = (type: BlockType): Block => {
   switch (type) {
@@ -41,6 +48,8 @@ export const emptyBlock = (type: BlockType): Block => {
       return { type, src: '', caption: '' };
     case 'youtube':
       return { type, videoId: '', caption: '' };
+    case 'image':
+      return { type, src: '', alt: '', caption: '' };
   }
 };
 
@@ -52,6 +61,7 @@ export const blockIcons: Record<BlockType, string> = {
   table: '📊',
   audio: '🎵',
   youtube: '▶️',
+  image: '🖼️',
 };
 
 export const blockLabels: Record<BlockType, string> = {
@@ -62,4 +72,5 @@ export const blockLabels: Record<BlockType, string> = {
   table: 'Table',
   audio: 'Audio',
   youtube: 'YouTube',
+  image: 'Image',
 };
