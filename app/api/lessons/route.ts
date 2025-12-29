@@ -34,9 +34,18 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const body = await req.json();
   const { slug, title, levelId, language, levelTag, order, blocks } = body;
+  if (!levelId) {
+    return NextResponse.json({ error: 'levelId is required' }, { status: 400 });
+  }
   if (!Array.isArray(blocks)) {
     return NextResponse.json({ error: 'blocks must be an array' }, { status: 400 });
   }
+  
+  const existingLesson = await prisma.lesson.findUnique({ where: { slug } });
+  if (existingLesson) {
+    return NextResponse.json({ error: 'slug already exists' }, { status: 409 });
+  }
+  
   const lesson = await prisma.lesson.create({
     data: { slug, title, levelId, language, levelTag, order, blocks },
   });
