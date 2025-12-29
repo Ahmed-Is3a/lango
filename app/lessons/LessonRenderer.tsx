@@ -1,17 +1,18 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 
 type LessonBlock =
   | { type: 'title'; text: string }
   | { type: 'header'; text: string }
   | { type: 'subheader'; text: string }
-  | { type: 'paragraph'; text: string }
+  | { type: 'paragraph'; text: string; translation?: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'audio'; src: string; caption?: string }
   | { type: 'youtube'; videoId: string; caption?: string };
 
 export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
   const safeYouTube = (videoId: string) => videoId.replace(/[^a-zA-Z0-9_-]/g, '');
+  const [openTranslations, setOpenTranslations] = useState<Record<number, boolean>>({});
 
   return (
     <div className="prose prose-indigo dark:prose-invert max-w-none">
@@ -24,7 +25,30 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
           case 'subheader':
             return <h3 key={i} className="text-xl font-semibold">{b.text}</h3>;
           case 'paragraph':
-            return <p key={i} className="whitespace-pre-line">{b.text}</p>;
+            return (
+              <div key={i} className="not-prose my-3">
+                <p className="whitespace-pre-line flex items-start gap-2">
+                  <span className="flex-1">{b.text}</span>
+                  {b.translation && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenTranslations((prev) => ({ ...prev, [i]: !prev[i] }))
+                      }
+                      className="mt-1 inline-flex items-center justify-center rounded-full border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-200 dark:hover:bg-indigo-900"
+                      aria-label="Toggle translation"
+                    >
+                      🌐
+                    </button>
+                  )}
+                </p>
+                {b.translation && openTranslations[i] && (
+                  <div className="mt-2 rounded-md border border-dashed border-indigo-300 bg-indigo-50 px-3 py-2 text-xs text-indigo-900 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-100">
+                    {b.translation}
+                  </div>
+                )}
+              </div>
+            );
           case 'table':
             return (
               <div key={i} className="overflow-x-auto">
