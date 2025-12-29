@@ -8,7 +8,8 @@ type LessonBlock =
   | { type: 'paragraph'; text: string; translation?: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'audio'; src: string; caption?: string }
-  | { type: 'youtube'; videoId: string; caption?: string };
+  | { type: 'youtube'; videoId: string; caption?: string }
+  | { type: 'image'; src: string; alt?: string; caption?: string };
 
 export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
   const safeYouTube = (videoId: string) => videoId.replace(/[^a-zA-Z0-9_-]/g, '');
@@ -94,6 +95,17 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                   />
                 </div>
                 {b.caption && <figcaption className="text-sm text-gray-500">{b.caption}</figcaption>}
+              </figure>
+            );
+          case 'image':
+            return (
+              <figure key={i} className="my-4">
+                <img
+                  src={b.src}
+                  alt={b.alt ?? 'Lesson image'}
+                  className="w-full h-auto rounded-md border border-gray-200 dark:border-gray-700"
+                />
+                {b.caption && <figcaption className="text-sm text-gray-500 text-center mt-2">{b.caption}</figcaption>}
               </figure>
             );
           default:
