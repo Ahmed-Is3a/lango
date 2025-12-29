@@ -351,7 +351,7 @@ export default function AdminLessonsPage() {
             <div className="p-4">
               <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add Blocks</h2>
               <div className="space-y-2">
-                {(['title','header','subheader','paragraph','table','audio','youtube'] as BlockType[]).map(type => (
+                {(['title','header','subheader','paragraph','table','audio','youtube','image'] as BlockType[]).map(type => (
                   <button
                     key={type}
                     onClick={() => addBlock(type)}
@@ -370,6 +370,7 @@ export default function AdminLessonsPage() {
                         {type === 'table' && 'Data table'}
                         {type === 'audio' && 'Audio player'}
                         {type === 'youtube' && 'Video embed'}
+                        {type === 'image' && 'Image with caption'}
                       </div>
                     </div>
                   </button>
