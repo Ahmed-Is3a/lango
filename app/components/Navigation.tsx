@@ -15,6 +15,11 @@ const navItems = [
 export default function Navigation() {
   const pathname = usePathname();
 
+  // Hide navigation on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <>
       {/* Desktop / Web Navigation */}
