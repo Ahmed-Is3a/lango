@@ -9,7 +9,7 @@ export default async function LessonPage({ params }: Params) {
   const slug = (await params).slug;
   const lesson = await prisma.lesson.findUnique({
     where: { slug },
-    include: { level: true },
+    include: { level: true, vocabularies: true },
   });
   if (!lesson) notFound();
 
@@ -25,6 +25,7 @@ export default async function LessonPage({ params }: Params) {
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Level: {lesson.level?.title} • Language: {lesson.language}
           </p>
+          {console.log('Lesson blocks:', lesson.blocks)}
           <LessonRenderer blocks={lesson.blocks as any} />
       </div>
     </main>
