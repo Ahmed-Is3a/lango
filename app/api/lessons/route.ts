@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     const level = await prisma.level.findUnique({ where: { slug: levelSlug } });
     where.levelId = level?.id ?? -1;
   }
-
+  
   const lessons = await prisma.lesson.findMany({
     where,
     include: { vocabularies: true },
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { slug, title, levelId, language, levelTag, order, blocks, vocabularyIds } = body;
+  const { slug, title, levelId, language, levelTag, order, blocks, vocabularyIds, status = 'draft' } = body;
   if (!levelId) {
     return NextResponse.json({ error: 'levelId is required' }, { status: 400 });
   }
@@ -54,6 +54,7 @@ export async function POST(req: Request) {
       levelId,
       language,
       levelTag,
+      status,
       order,
       blocks,
       vocabularies: vocabularyIds && Array.isArray(vocabularyIds)
