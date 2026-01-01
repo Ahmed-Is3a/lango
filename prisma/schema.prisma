@@ -32,6 +32,7 @@ model Vocabulary {
   exampleGerman  String?
   exampleEnglish String?
   imageUrl    String?
+  lessons     Lesson[]
 }
 
 model QuizQuestion {
@@ -78,17 +79,18 @@ model Level {
 }
 
 model Lesson {
-  id         Int       @id @default(autoincrement())
-  slug       String    @unique
-  title      String
-  levelId    Int
-  level      Level     @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  language   String    @default("en")
-  levelTag   LessonLevel @default(A1)
-  order      Int       @default(0)
-  blocks     Json
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  slug          String    @unique
+  title         String
+  levelId       Int
+  level         Level     @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  language      String    @default("en")
+  levelTag      LessonLevel @default(A1)
+  order         Int       @default(0)
+  blocks        Json
+  vocabularies  Vocabulary[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([levelId, order])
 }
