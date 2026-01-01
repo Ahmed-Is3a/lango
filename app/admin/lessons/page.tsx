@@ -9,7 +9,7 @@ import Link from 'next/link';
 type Level = { id: number; slug: string; title: string; description?: string | null; order: number };
 type LessonLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 type Lesson = { id: number; slug: string; title: string; levelId: number;
-                language: string; levelTag: LessonLevel; order: number; blocks: any[] };
+                language: string; levelTag: LessonLevel; order: number; blocks: any[]; status?: 'draft' | 'published' };
 
 export default function AdminLessonsPage() {
   const router = useRouter();
@@ -28,6 +28,7 @@ export default function AdminLessonsPage() {
   // Dashboard filters
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('');
+  const [filterStatus, setFilterStatus] = useState<string>(''); // 'all', 'draft', 'published'
 
   useEffect(() => {
     (async () => {
@@ -106,11 +107,12 @@ export default function AdminLessonsPage() {
   const filteredLessons = lessons.filter((lesson) => {
     const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLevel = !filterLevel || lesson.levelTag === filterLevel;
-    return matchesSearch && matchesLevel;
+    const matchesStatus = !filterStatus || lesson.status === filterStatus;
+    return matchesSearch && matchesLevel && matchesStatus;
   });
 
-  const publishedCount = lessons.length;
-  const draftCount = 0; // Placeholder
+  const publishedCount = lessons.filter(l => l.status === 'published').length;
+  const draftCount = lessons.filter(l => l.status === 'draft' || !l.status).length;
 
   return (
       <div className="min-h-screen bg-background-light dark:bg-background-dark flex overflow-hidden h-screen">
@@ -321,6 +323,18 @@ export default function AdminLessonsPage() {
                   <span className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{publishedCount}</span>
                   <span className="text-xs text-green-600 font-medium mt-1">Active for students</span>
                 </div>
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Drafts</span>
+                    <div className="bg-yellow-100 dark:bg-yellow-900/30 rounded-full size-10 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{draftCount}</span>
+                  <span className="text-xs text-yellow-600 dark:text-yellow-400 font-medium mt-1">Unpublished lessons</span>
+                </div>
               </div>
 
               {/* Toolbar: Search & Filters */}
@@ -359,6 +373,20 @@ export default function AdminLessonsPage() {
                       <path d="M7 10l5 5 5-5z" />
                     </svg>
                   </div>
+                  <div className="relative w-full md:w-40">
+                    <select 
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="w-full appearance-none pl-4 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary outline-none cursor-pointer"
+                    >
+                      <option value="">All Status</option>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                    <svg className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7 10l5 5 5-5z" />
+                    </svg>
+                  </div>
                 </div>
               </div>
 
@@ -391,6 +419,7 @@ export default function AdminLessonsPage() {
                           <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Lesson Title</th>
                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Level</th>
+                            <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Language</th>
                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 hidden md:table-cell">Order</th>
                             <th className="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
@@ -424,6 +453,15 @@ export default function AdminLessonsPage() {
                                 <td className="py-4 px-6">
                                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${levelColors[lesson.levelTag]}`}>
                                     {lesson.levelTag}
+                                  </span>
+                                </td>
+                                <td className="py-4 px-6">
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    lesson.status === 'published' 
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                  }`}>
+                                    {lesson.status === 'published' ? 'Published' : 'Draft'}
                                   </span>
                                 </td>
                                 <td className="py-4 px-6">
