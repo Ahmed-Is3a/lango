@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   if (slug || id) {
     const lesson = await prisma.lesson.findUnique({
       where: slug ? { slug } : { id: id! },
-      include: { level: true },
+      include: { level: true, vocabularies: true },
     });
     return NextResponse.json(lesson, { status: lesson ? 200 : 404 });
   }
@@ -26,6 +26,7 @@ export async function GET(req: Request) {
 
   const lessons = await prisma.lesson.findMany({
     where,
+    include: { vocabularies: true },
     orderBy: [{ levelId: 'asc' }, { order: 'asc' }],
   });
   return NextResponse.json(lessons);
@@ -33,7 +34,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { slug, title, levelId, language, levelTag, order, blocks } = body;
+  const { slug, title, levelId, language, levelTag, order, blocks, vocabularyIds } = body;
   if (!levelId) {
     return NextResponse.json({ error: 'levelId is required' }, { status: 400 });
   }
@@ -47,19 +48,44 @@ export async function POST(req: Request) {
   }
   
   const lesson = await prisma.lesson.create({
-    data: { slug, title, levelId, language, levelTag, order, blocks },
+    data: {
+      slug,
+      title,
+      levelId,
+      language,
+      levelTag,
+      order,
+      blocks,
+      vocabularies: vocabularyIds && Array.isArray(vocabularyIds)
+        ? { connect: vocabularyIds.map((id: number) => ({ id })) }
+        : undefined,
+    },
+    include: { vocabularies: true },
   });
   return NextResponse.json(lesson, { status: 201 });
 }
 
 export async function PUT(req: Request) {
   const body = await req.json();
-  const { id, slug, ...data } = body;
+  const { id, slug, vocabularyIds, ...data } = body;
   if (data.blocks && !Array.isArray(data.blocks)) {
     return NextResponse.json({ error: 'blocks must be an array' }, { status: 400 });
   }
+  
   const where = id ? { id } : { slug };
-  const lesson = await prisma.lesson.update({ where, data });
+  
+  // Handle vocabulary associations
+  if (vocabularyIds !== undefined) {
+    data.vocabularies = {
+      set: Array.isArray(vocabularyIds) ? vocabularyIds.map((id: number) => ({ id })) : [],
+    };
+  }
+  
+  const lesson = await prisma.lesson.update({
+    where,
+    data,
+    include: { vocabularies: true },
+  });
   return NextResponse.json(lesson);
 }
 
