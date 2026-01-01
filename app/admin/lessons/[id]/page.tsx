@@ -27,6 +27,7 @@ export default function EditLessonPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
+  const [currentStatus, setCurrentStatus] = useState<'draft' | 'published'>('draft');
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function EditLessonPage() {
 
         // Load lesson if editing
         if (lessonId) {
-          const res = await fetch('/api/lessons');
+          const res = await fetch('/api/lessons?includeAll=true');
           const data = await res.json();
           const lessons = Array.isArray(data) ? data : [];
           const lesson = lessons.find((l: { id: number }) => l.id === lessonId);
@@ -78,6 +79,7 @@ export default function EditLessonPage() {
             setLevelId(lesson.levelId);
             setBlocks(lesson.blocks || []);
             setSelectedVocabIds(lesson.vocabularies?.map((v: Vocabulary) => v.id) || []);
+            setCurrentStatus(lesson.status || 'draft');
           } else {
             setMessage('Lesson not found');
           }
@@ -91,7 +93,7 @@ export default function EditLessonPage() {
     loadLessonAndLevels();
   }, [lessonId]);
 
-  const handleSave = async () => {
+  const saveLessonWithStatus = async (status: 'draft' | 'published') => {
     if (!levelId) {
       setMessage('Please select a level');
       return;
@@ -116,6 +118,7 @@ export default function EditLessonPage() {
         order,
         blocks,
         vocabularyIds: selectedVocabIds,
+        status,
       };
 
       const res = await fetch('/api/lessons', {
@@ -129,18 +132,28 @@ export default function EditLessonPage() {
         throw new Error(err?.error ?? `Failed to ${lessonId ? 'update' : 'save'} lesson`);
       }
 
-      setMessage(`Lesson ${lessonId ? 'updated' : 'created'} successfully`);
+      const actionText = status === 'published' ? 'published' : 'saved as draft';
+      setMessage(`Lesson ${actionText} successfully`);
+      setCurrentStatus(status);
       
-      // Redirect to lessons list after a brief delay
-      setTimeout(() => {
-        router.push('/admin/lessons');
-      }, 1500);
+      // Only redirect if publishing, allow staying on page for drafts
+      if (status === 'published') {
+        setTimeout(() => {
+          router.push('/admin/lessons');
+        }, 1500);
+      } else {
+        // Clear message after a few seconds for drafts
+        setTimeout(() => setMessage(null), 3000);
+      }
     } catch (error) {
       setMessage((error as Error)?.message ?? 'Error saving lesson');
     } finally {
       setSaving(false);
     }
   };
+
+  const handleSaveDraft = () => saveLessonWithStatus('draft');
+  const handlePublish = () => saveLessonWithStatus('published');
 
   const handleCancel = () => {
     router.push('/admin/lessons');
@@ -182,10 +195,13 @@ export default function EditLessonPage() {
         levels={levels}
         levelTag={levelTag}
         setLevelTag={setLevelTag}
-        onSave={handleSave}
+        onSave={handlePublish}
+        onSaveDraft={handleSaveDraft}
+        onPublish={handlePublish}
         onCancel={handleCancel}
         saving={saving}
         editingLessonId={lessonId}
+        currentStatus={currentStatus}
         vocabularies={vocabularies}
         selectedVocabIds={selectedVocabIds}
         onVocabSelectionChange={setSelectedVocabIds}
