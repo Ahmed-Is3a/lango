@@ -17,9 +17,12 @@ interface LessonEditorProps {
   levelTag: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   setLevelTag: (tag: "A1" | "A2" | "B1" | "B2" | "C1" | "C2") => void;
   onSave: () => void;
+  onSaveDraft?: () => void;
+  onPublish?: () => void;
   onCancel: () => void;
   saving: boolean;
   editingLessonId: number | null;
+  currentStatus?: 'draft' | 'published';
   vocabularies?: Array<{
     id: number;
     term: string;
@@ -44,9 +47,12 @@ export default function LessonEditor({
   levelTag,
   setLevelTag,
   onSave,
+  onSaveDraft,
+  onPublish,
   onCancel,
   saving,
   editingLessonId,
+  currentStatus = 'draft',
   vocabularies = [],
   selectedVocabIds = [],
   onVocabSelectionChange,
@@ -603,14 +609,35 @@ export default function LessonEditor({
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
               </button>
-              <button
-                onClick={onSave}
-                disabled={saving}
-                className="px-2 py-1 rounded-lg text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d={saving ? "M12 4V1m0 22v-3m8-8h3M3 12h3m18 0c0 6.627-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0s12 5.373 12 12z" : editingLessonId ? "M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" : "M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM10 16.5l6-4-6-4v8z"} /></svg>
-                {saving ? "Saving..." : editingLessonId ? "Update" : "Publish"}
-              </button>
+              {(onSaveDraft || onPublish) ? (
+                <>
+                  <button
+                    onClick={onSaveDraft || onSave}
+                    disabled={saving}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" /></svg>
+                    {saving ? 'Saving...' : currentStatus === 'published' ? 'Save Changes' : 'Save as Draft'}
+                  </button>
+                  <button
+                    onClick={onPublish || onSave}
+                    disabled={saving}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z"/></svg>
+                    {saving ? 'Publishing...' : currentStatus === 'published' ? 'Update & Publish' : 'Publish'}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={onSave}
+                  disabled={saving}
+                  className="px-2 py-1 rounded-lg text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d={saving ? "M12 4V1m0 22v-3m8-8h3M3 12h3m18 0c0 6.627-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0s12 5.373 12 12z" : editingLessonId ? "M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" : "M19 12a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM10 16.5l6-4-6-4v8z"} /></svg>
+                  {saving ? "Saving..." : editingLessonId ? "Update" : "Publish"}
+                </button>
+              )}
             </div>
           </div>
 
