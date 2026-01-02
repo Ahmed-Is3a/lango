@@ -252,7 +252,11 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
               currentList = [];
             };
 
-            lines.forEach((line, lineIdx) => {
+            const isTableRow = (line: string) => /^\s*\|(.+\|)+\s*$/.test(line);
+            const isSeparatorRow = (line: string) => /^\s*\|?\s*:?[-]{3,}.*\|\s*$/.test(line);
+
+            for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+              const line = lines[lineIdx];
               const trimmed = line.trim();
 
               if (trimmed === "---") {
@@ -263,13 +267,68 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                     className="my-6 border-t border-slate-300 dark:border-slate-700"
                   />
                 );
-                return;
+                continue;
               }
 
               if (!trimmed) {
                 flushList();
                 elements.push(<div key={`${i}-spacer-${lineIdx}`} className="h-2" />);
-                return;
+                continue;
+              }
+
+              // Markdown table detection
+              if (isTableRow(trimmed) && lineIdx + 1 < lines.length && isSeparatorRow(lines[lineIdx + 1].trim())) {
+                flushList();
+                const tableLines: string[] = [trimmed, lines[++lineIdx].trim()];
+                while (lineIdx + 1 < lines.length && isTableRow(lines[lineIdx + 1].trim())) {
+                  tableLines.push(lines[++lineIdx].trim());
+                }
+
+                const headers = tableLines[0]
+                  .split("|")
+                  .slice(1, -1)
+                  .map((h) => h.trim())
+                  .filter(Boolean);
+                const bodyRows = tableLines.slice(2).map((row) =>
+                  row
+                    .split("|")
+                    .slice(1, -1)
+                    .map((c) => c.trim())
+                );
+
+                elements.push(
+                  <div key={`${i}-table-${lineIdx}`} className="my-4 overflow-x-auto">
+                    <table className="min-w-full text-sm border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                      <thead className="bg-slate-100 dark:bg-slate-800">
+                        <tr>
+                          {headers.map((h, hIdx) => (
+                            <th
+                              key={hIdx}
+                              className="px-3 py-2 text-left font-semibold text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700"
+                            >
+                              {renderFormattedText(h)}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bodyRows.map((row, rIdx) => (
+                          <tr key={rIdx} className={rIdx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800/70"}>
+                            {row.map((cell, cIdx) => (
+                              <td
+                                key={cIdx}
+                                className="px-3 py-2 border-b border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 align-top"
+                              >
+                                {renderFormattedText(cell)}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+                continue;
               }
 
               const listMatch = line.match(/^(\s*)\* (.*)$/);
@@ -282,7 +341,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                 } else {
                   currentList.push({ text: content, children: [] });
                 }
-                return;
+                continue;
               }
 
               flushList();
@@ -294,7 +353,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                   {renderFormattedText(line)}
                 </p>
               );
-            });
+            }
 
             flushList();
 
@@ -530,12 +589,44 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
             const answers = blankAnswers[i] || Array(blanks.length - 1).fill("");
             const isSubmitted = blankSubmitted[i];
             const results = blankResults[i] || [];
+
+            const handleWordClick = (word: string) => {
+              const blanksCount = Math.max(blanks.length - 1, 0);
+              const current = blankAnswers[i] || Array(blanksCount).fill("");
+              const targetIdx = current.findIndex((val) => !val);
+              if (targetIdx === -1) return; // no empty slot
+              const newAnswers = [...current];
+              newAnswers[targetIdx] = word;
+              setBlankAnswers({ ...blankAnswers, [i]: newAnswers });
+            };
             return (
               <div
                 key={i}
                 className="not-prose my-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
               >
-                <div className="text-base text-slate-900 dark:text-white leading-relaxed mb-4">
+{b.wordOptions && b.wordOptions.length > 0 && (
+                  <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                      Drag words or type answers:
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {b.wordOptions.map((word, wordIdx) => (
+                        <div
+                          key={wordIdx}
+                          draggable
+                          onDragStart={() => setDraggedWord(word)}
+                          onDragEnd={() => setDraggedWord(null)}
+                          onClick={() => handleWordClick(word)}
+                          className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 text-sm font-medium cursor-move hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors"
+                        >
+                          {word}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-base text-slate-900 dark:text-white leading-relaxed mb-4 whitespace-pre-wrap">
                   {blanks.map((segment, idx) => (
                     <span key={idx}>
                       {segment}
@@ -546,6 +637,13 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                           onChange={(e) => {
                             const newAnswers = [...answers];
                             newAnswers[idx] = e.target.value;
+                            setBlankAnswers({ ...blankAnswers, [i]: newAnswers });
+                          }}
+                          onClick={() => {
+                            if (isSubmitted) return;
+                            if (!answers[idx]) return;
+                            const newAnswers = [...answers];
+                            newAnswers[idx] = "";
                             setBlankAnswers({ ...blankAnswers, [i]: newAnswers });
                           }}
                           onDrop={(e) => {
@@ -562,7 +660,6 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                             }
                           }}
                           onDragOver={(e) => e.preventDefault()}
-                          placeholder={`Answer ${idx + 1}`}
                           className={`inline-block w-24 mx-1 px-2 py-1 border-b-2 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none transition-colors ${
                             isSubmitted
                               ? results[idx]
@@ -575,6 +672,8 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                     </span>
                   ))}
                 </div>
+
+
 
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
@@ -589,7 +688,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                       setBlankResults({ ...blankResults, [i]: evaluation });
                       setBlankSubmitted({ ...blankSubmitted, [i]: true });
                     }}
-                    className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
                   >
                     Check answers
                   </button>
@@ -601,26 +700,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                   )}
                 </div>
 
-                {b.wordOptions && b.wordOptions.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
-                      Drag words or type answers:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {b.wordOptions.map((word, wordIdx) => (
-                        <div
-                          key={wordIdx}
-                          draggable
-                          onDragStart={() => setDraggedWord(word)}
-                          onDragEnd={() => setDraggedWord(null)}
-                          className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 text-sm font-medium cursor-move hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors"
-                        >
-                          {word}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                
               </div>
             );
           case "matchingPairs":
