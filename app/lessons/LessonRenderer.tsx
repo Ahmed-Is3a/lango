@@ -233,7 +233,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
               elements.push(
                 <ul
                   key={listKey}
-                  className="list-disc list-inside my-2 space-y-1 text-sm"
+                  className="list-disc list-inside m-2 space-y-1 text-base"
                 >
                   {currentList.map((item, idx) => (
                     <li key={idx} className="space-y-1">
@@ -260,7 +260,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
                 elements.push(
                   <hr
                     key={`${i}-hr-${lineIdx}`}
-                    className="my-4 border-t-2 border-slate-300 dark:border-slate-700"
+                    className="my-6 border-t border-slate-300 dark:border-slate-700"
                   />
                 );
                 return;
@@ -289,7 +289,7 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
               elements.push(
                 <p
                   key={`${i}-p-${lineIdx}`}
-                  className="whitespace-pre-wrap my-2 text-base"
+                  className="whitespace-pre-wrap my-2 text-lg"
                 >
                   {renderFormattedText(line)}
                 </p>
