@@ -1273,87 +1273,11 @@ export default function LessonEditor({
                                 />
                               </div>
 
-                              {block.type === "paragraph" && (
-                                <div>
-                                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2 block">
-                                    List items (optional)
-                                  </label>
-                                  <div className="space-y-2">
-                                    {(block.items || []).map(
-                                      (item, itemIndex) => (
-                                        <div
-                                          key={itemIndex}
-                                          className="flex gap-2"
-                                        >
-                                          <input
-                                            type="text"
-                                            value={item}
-                                            onChange={(e) => {
-                                              const newItems = [
-                                                ...(block.items || []),
-                                              ];
-                                              newItems[itemIndex] =
-                                                e.target.value;
-                                              updateBlock(index, {
-                                                ...block,
-                                                items: newItems,
-                                              });
-                                            }}
-                                            onFocus={(e) =>
-                                              setFocusedElement(e.target)
-                                            }
-                                            placeholder={`Item ${
-                                              itemIndex + 1
-                                            }`}
-                                            className="flex-1 p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-                                          />
-                                          <button
-                                            onClick={() => {
-                                              const newItems = (
-                                                block.items || []
-                                              ).filter(
-                                                (_, i) => i !== itemIndex
-                                              );
-                                              updateBlock(index, {
-                                                ...block,
-                                                items: newItems,
-                                              });
-                                            }}
-                                            className="px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                            title="Remove item"
-                                          >
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                                          </button>
-                                        </div>
-                                      )
-                                    )}
-                                  </div>
-                                  <button
-                                    onClick={() => {
-                                      const newItems = [
-                                        ...(block.items || []),
-                                        "",
-                                      ];
-                                      updateBlock(index, {
-                                        ...block,
-                                        items: newItems,
-                                      });
-                                    }}
-                                    className="mt-2 text-sm text-primary hover:text-blue-700 font-medium flex items-center gap-1"
-                                  >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-                                    Add list item
-                                  </button>
-                                </div>
-                              )}
                             </div>
                           )}
                           {block.type === "table" && (
                             <div className="space-y-3">
                               <div>
-                                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                                  Table Title (optional)
-                                </label>
                                 <input
                                   type="text"
                                   value={(block as any).title || ""}
@@ -1588,10 +1512,10 @@ export default function LessonEditor({
                                                     rows,
                                                   });
                                                 }}
-                                                className="px-2 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                className="hover:bg-red-100 dark:hover:bg-red-900/20"
                                                 title="Delete row"
                                               >
-                                                Delete
+                                                <svg fill="#f56969ff" width="25px" height="25px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" stroke="#f03939ff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title></title> <g data-name="01" id="_01"> <path d="M13,20V14a1,1,0,0,1,2,0v6a1,1,0,0,1-2,0Zm5,1a1,1,0,0,0,1-1V14a1,1,0,0,0-2,0v6A1,1,0,0,0,18,21ZM7,10A1,1,0,0,1,8,9h4V7a1,1,0,0,1,1-1h6a1,1,0,0,1,1,1V9h4a1,1,0,0,1,0,2H23V22a4,4,0,0,1-4,4H13a4,4,0,0,1-4-4V11H8A1,1,0,0,1,7,10Zm7-1h4V8H14ZM11,22a2,2,0,0,0,2,2h6a2,2,0,0,0,2-2V11H11Z"></path> </g> </g></svg>
                                               </button>
                                             </div>
                                           </td>
@@ -2121,7 +2045,7 @@ export default function LessonEditor({
                   onChange={(e) =>
                     setLevelId(e.target.value ? Number(e.target.value) : null)
                   }
-                  className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm p-2.5"
+                  className="block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:outline-none sm:text-sm p-2"
                 >
                   <option value="">Select a level...</option>
                   {levels.map((level) => (
@@ -2132,7 +2056,7 @@ export default function LessonEditor({
                 </select>
               </label>
 
-              <label className="block mb-4">
+              <label className="block mb-2">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Lesson Slug
                 </span>
@@ -2140,7 +2064,7 @@ export default function LessonEditor({
                   type="text"
                   value={lessonSlug}
                   onChange={(e) => setLessonSlug(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm p-2.5"
+                  className="block w-full rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring focus:ring-blue-300 sm:text-sm p-1"
                   placeholder="lesson-slug"
                 />
                 <p className="text-[9px] text-slate-800 dark:text-slate-400 mt-1">
