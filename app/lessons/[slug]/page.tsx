@@ -15,7 +15,8 @@ export default async function LessonPage({ params }: Params) {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-8">
-      <div className="container mx-auto p-4 md:px-6 max-w-250">
+
+      <div className="container mx-auto p-4 md:px-6 max-w-2xl">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold">{lesson.title}</h1>
             <span className="px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
@@ -28,6 +29,7 @@ export default async function LessonPage({ params }: Params) {
           {console.log('Lesson blocks:', lesson.blocks)}
           <LessonRenderer blocks={lesson.blocks as any} />
       </div>
+
     </main>
   );
 }
