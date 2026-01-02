@@ -11,9 +11,17 @@ type LessonLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 type Lesson = { id: number; slug: string; title: string; levelId: number;
                 language: string; levelTag: LessonLevel; order: number; blocks: any[]; status?: 'draft' | 'published' };
 
+const LEVELS: Level[] = [
+  { id: 1, slug: 'a1', title: 'A1 (Beginner)', description: 'Elementary level', order: 1 },
+  { id: 2, slug: 'a2', title: 'A2 (Elementary)', description: 'Elementary level', order: 2 },
+  { id: 3, slug: 'b1', title: 'B1 (Intermediate)', description: 'Intermediate level', order: 3 },
+  { id: 4, slug: 'b2', title: 'B2 (Upper Intermediate)', description: 'Upper intermediate level', order: 4 },
+  { id: 5, slug: 'c1', title: 'C1 (Advanced)', description: 'Advanced level', order: 5 },
+  { id: 6, slug: 'c2', title: 'C2 (Proficient)', description: 'Proficiency level', order: 6 },
+];
+
 export default function AdminLessonsPage() {
   const router = useRouter();
-  const [levels, setLevels] = useState<Level[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loadingLessons, setLoadingLessons] = useState(false);
   const [creatingLevel, setCreatingLevel] = useState(false);
@@ -29,16 +37,6 @@ export default function AdminLessonsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterLevel, setFilterLevel] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>(''); // 'all', 'draft', 'published'
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/levels');
-        const data = await res.json();
-        setLevels(Array.isArray(data) ? data : []);
-      } catch {}
-    })();
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -117,11 +115,11 @@ export default function AdminLessonsPage() {
   return (
       <div className="min-h-screen bg-background-light dark:bg-background-dark flex overflow-hidden h-screen">
         {/* Sidebar */}
-        <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col h-full z-20">
+        <aside className="w-50 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col h-full z-20">
           {/* Sidebar Header */}
-          <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="bg-primary rounded-full size-10 flex items-center justify-center text-white font-bold">
+              <div className="bg-gray-500 rounded-full size-10 flex items-center justify-center text-white font-bold">
                 D
               </div>
               <div className="flex flex-col overflow-hidden">
@@ -213,7 +211,7 @@ export default function AdminLessonsPage() {
         <main className="flex-1 flex flex-col h-full overflow-hidden relative">
           {/* Scrollable Content Area */}
           <div className="flex-1 p-4 overflow-y-auto scroll-smooth">
-            <div className="max-w-7xl mx-auto flex flex-col gap-8">
+            <div className="max-w-7xl mx-auto flex flex-col gap-2">
               {/* Breadcrumbs */}
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <a className="hover:text-primary transition-colors" href="#">Home</a>
@@ -247,7 +245,7 @@ export default function AdminLessonsPage() {
               )}
 
               {/* Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="py-4 grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 dark:text-gray-400 font-medium text-sm uppercase tracking-wider">Total Lessons</span>
@@ -338,7 +336,7 @@ export default function AdminLessonsPage() {
               </div>
 
               {/* Toolbar: Search & Filters */}
-              <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm items-center">
+              <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm items-center">
                 {/* Search */}
                 <div className="relative flex-1 w-full">
                   <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,29 +353,29 @@ export default function AdminLessonsPage() {
 
                 {/* Filters */}
                 <div className="flex gap-3 w-full md:w-auto">
-                  <div className="relative w-full md:w-40">
+                  <div className="relative w-full md:w-30">
                     <select 
                       value={filterLevel}
                       onChange={(e) => setFilterLevel(e.target.value)}
-                      className="w-full appearance-none pl-4 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary outline-none cursor-pointer"
+                      className="w-full appearance-none px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-1 outline-none cursor-pointer"
                     >
                       <option value="">All Levels</option>
-                      <option value="A1">A1 (Beginner)</option>
-                      <option value="A2">A2 (Elementary)</option>
-                      <option value="B1">B1 (Intermediate)</option>
-                      <option value="B2">B2 (Upper Int.)</option>
-                      <option value="C1">C1 (Advanced)</option>
-                      <option value="C2">C2 (Proficient)</option>
+                      <option value="A1">A1</option>
+                      <option value="A2">A2</option>
+                      <option value="B1">B1</option>
+                      <option value="B2">B2</option>
+                      <option value="C1">C1</option>
+                      <option value="C2">C2</option>
                     </select>
                     <svg className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M7 10l5 5 5-5z" />
                     </svg>
                   </div>
-                  <div className="relative w-full md:w-40">
+                  <div className="relative w-full md:w-30">
                     <select 
                       value={filterStatus}
                       onChange={(e) => setFilterStatus(e.target.value)}
-                      className="w-full appearance-none pl-4 pr-10 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary outline-none cursor-pointer"
+                      className="w-full appearance-none px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-primary outline-none cursor-pointer"
                     >
                       <option value="">All Status</option>
                       <option value="published">Published</option>
@@ -427,7 +425,7 @@ export default function AdminLessonsPage() {
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                           {filteredLessons.map((lesson) => {
-                            const level = levels.find((l) => l.id === lesson.levelId);
+                            const level = LEVELS.find((l) => l.id === lesson.levelId);
                             const levelColors: Record<LessonLevel, string> = {
                               A1: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
                               A2: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
