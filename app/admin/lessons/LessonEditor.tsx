@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Block, emptyBlock, BlockType } from "./blockTypes";
 import LessonRenderer from "../../lessons/LessonRenderer";
 
@@ -74,6 +74,7 @@ export default function LessonEditor({
   const [showColorPicker, setShowColorPicker] = useState<number | null>(null);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [selectedBlockIndex, setSelectedBlockIndex] = useState<number | null>(null);
+  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const [newVocabForm, setNewVocabForm] = useState({
     term: "",
     definition: "",
@@ -1066,6 +1067,35 @@ export default function LessonEditor({
                                     <div className="w-px bg-slate-300 dark:bg-slate-600"></div>
                                     <button
                                       onClick={() => {
+                                        const textarea = textareaRefs.current[index];
+                                        const text = block.text || "";
+                                        if (!textarea || !text) return;
+
+                                        const splitPoint = textarea.selectionStart ?? text.length;
+                                        if (splitPoint <= 0 || splitPoint >= text.length) return;
+
+                                        const before = text.slice(0, splitPoint);
+                                        const after = text.slice(splitPoint);
+
+                                        const newBlocks = [...blocks];
+                                        newBlocks[index] = { ...block, text: before } as Block;
+                                        newBlocks.splice(index + 1, 0, { ...block, text: after } as Block);
+                                        setBlocks(newBlocks);
+                                        setSelectedBlockIndex(index + 1);
+
+                                        setTimeout(() => {
+                                          textareaRefs.current[index + 1]?.focus();
+                                        }, 0);
+                                      }}
+                                      className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                      title="Split into two paragraphs"
+                                    >
+                                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3h6v6H5V3zm0 12h6v6H5v-6zm8-6h6v6h-6V9z"/></svg>
+                                      <span>Split</span>
+                                    </button>
+                                    <div className="w-px bg-slate-300 dark:bg-slate-600"></div>
+                                    <button
+                                      onClick={() => {
                                         const textarea = document.querySelector(
                                           `textarea[placeholder="Enter ${block.type} content..."]`
                                         ) as HTMLTextAreaElement;
@@ -1250,6 +1280,9 @@ export default function LessonEditor({
                                   </div>
                                 )}
                                 <textarea
+                                  ref={(el) => {
+                                    textareaRefs.current[index] = el;
+                                  }}
                                   value={block.text || ""}
                                   onChange={(e) => {
                                     updateBlock(index, {
@@ -1741,6 +1774,40 @@ export default function LessonEditor({
                           )}
                           {block.type === "fillInTheBlank" && (
                             <div className="space-y-3">
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => {
+                                    const json = window.prompt("Paste fill-in-the-blank JSON (text, answers, wordOptions, hints)");
+                                    if (!json) return;
+                                    try {
+                                      const parsed = JSON.parse(json);
+                                      const text = typeof parsed.text === "string" ? parsed.text : "";
+                                      const answers = Array.isArray(parsed.answers)
+                                        ? parsed.answers.map((a: any) => String(a ?? ""))
+                                        : [];
+                                      const wordOptions = Array.isArray(parsed.wordOptions)
+                                        ? parsed.wordOptions.map((w: any) => String(w ?? ""))
+                                        : [];
+                                      const hints = Array.isArray(parsed.hints)
+                                        ? parsed.hints.map((h: any) => String(h ?? ""))
+                                        : [];
+
+                                      updateBlock(index, {
+                                        ...block,
+                                        text,
+                                        answers,
+                                        wordOptions,
+                                        hints,
+                                      });
+                                    } catch (err) {
+                                      alert("Invalid JSON. Please ensure it includes text, answers, and optional wordOptions/hints.");
+                                    }
+                                  }}
+                                  className="px-3 py-1 text-xs font-medium rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+                                >
+                                  Import from JSON
+                                </button>
+                              </div>
                               <div>
                                 <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
                                   Sentence (use ___ for blanks)
