@@ -6,7 +6,7 @@ type LessonBlock =
   | { type: "header"; text: string }
   | { type: "subheader"; text: string }
   | { type: "paragraph"; text: string; translation?: string; items?: string[] }
-  | { type: "table"; headers: string[]; rows: string[][] }
+  | { type: "table"; title?: string; headers: string[]; rows: string[][] }
   | { type: "audio"; src: string; caption?: string }
   | { type: "youtube"; videoId: string; caption?: string }
   | { type: "image"; src: string; alt?: string; caption?: string }
