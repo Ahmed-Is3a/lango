@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Block, emptyBlock, BlockType } from "./blockTypes";
+import { Block, emptyBlock, BlockType, TextBlock } from "./blockTypes";
 import LessonRenderer from "../../lessons/LessonRenderer";
 
 interface LessonEditorProps {
@@ -308,7 +308,7 @@ export default function LessonEditor({
             block.type === "header" ||
             block.type === "subheader" ||
             block.type === "title") &&
-          (block as any).text === text
+          (block as TextBlock).text === text
         );
       });
 
