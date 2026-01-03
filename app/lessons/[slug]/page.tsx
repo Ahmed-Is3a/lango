@@ -26,7 +26,6 @@ export default async function LessonPage({ params }: Params) {
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Level: {lesson.level?.title} • Language: {lesson.language}
           </p>
-          {console.log('Lesson blocks:', lesson.blocks)}
           <LessonRenderer blocks={lesson.blocks as any} />
       </div>
 
