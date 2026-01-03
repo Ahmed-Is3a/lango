@@ -24,8 +24,6 @@ export default function AdminLessonsPage() {
   const router = useRouter();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loadingLessons, setLoadingLessons] = useState(false);
-  const [creatingLevel, setCreatingLevel] = useState(false);
-  const [levelForm, setLevelForm] = useState({ slug: '', title: '', description: '', order: 0 });
   const [message, setMessage] = useState<string | null>(null);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{ isOpen: boolean; lessonId: number | null; lessonTitle: string }>({
     isOpen: false,
@@ -51,27 +49,6 @@ export default function AdminLessonsPage() {
       }
     })();
   }, []);
-
-  const onCreateLevel = async () => {
-    setCreatingLevel(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/levels', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(levelForm),
-      });
-      if (!res.ok) throw new Error('Failed to create level');
-      const lvl = await res.json();
-      setLevels((ls) => [...ls, lvl]);
-      setLevelForm({ slug: '', title: '', description: '', order: 0 });
-      setMessage('Level created');
-    } catch (e: any) {
-      setMessage(e?.message ?? 'Error creating level');
-    } finally {
-      setCreatingLevel(false);
-    }
-  };
 
   const onDeleteLesson = async (lessonId: number, lessonTitle: string) => {
     setDeleteConfirmModal({ isOpen: true, lessonId, lessonTitle });
