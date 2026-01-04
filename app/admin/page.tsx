@@ -56,11 +56,11 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark flex overflow-hidden h-screen">
       {/* Sidebar */}
-      <aside className="w-52 bg-white dark:bg-gray-800 border-r-4 border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col h-full z-20">
+      <aside className="md:w-52 bg-white dark:bg-gray-800 border-r-4 border-gray-200 dark:border-gray-700 flex-shrink-0 flex flex-col h-vh z-20">
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+        <div className="hidden md:block p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="bg-primary rounded-full size-10 flex items-center justify-center text-white font-bold">
+            <div className="bg-gray-700 rounded-full size-10 flex items-center justify-center text-white font-bold">
               D
             </div>
             <div className="flex flex-col overflow-hidden">
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
             >
               <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
             </svg>
-            <span className="text-sm font-semibold">Dashboard</span>
+            <span className="hidden md:inline text-sm font-semibold">Dashboard</span>
           </Link>
           <Link
             className="flex items-center gap-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
             >
               <path d="M5 2c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2H5zm0 2h10v10H5V4zm12 0v10h2V4h-2zm0 12H5v2h12v-2z" />
             </svg>
-            <span className="text-sm font-medium">Lessons</span>
+            <span className="hidden md:inline text-sm font-medium">Lessons</span>
           </Link>
           <a
             className="flex items-center gap-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
             >
               <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
             </svg>
-            <span className="text-sm font-medium">Media Library</span>
+            <span className="hidden md:inline text-sm font-medium">Media Library</span>
           </a>
           <a
             className="flex items-center gap-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
             >
               <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
             </svg>
-            <span className="text-sm font-medium">Users</span>
+            <span className="hidden md:inline text-sm font-medium">Users</span>
           </a>
           <a
             className="flex items-center gap-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
             >
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94c0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.64l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33c-.22-.08-.47 0-.59.22L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48l2.03 1.58C4.84 11.36 4.8 11.69 4.8 12s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.64l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.64l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6s3.6 1.62 3.6 3.6s-1.62 3.6-3.6 3.6z" />
             </svg>
-            <span className="text-sm font-medium">Settings</span>
+            <span className="hidden md:inline text-sm font-medium">Settings</span>
           </a>
         </nav>
 
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
             >
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
-            <span className="text-sm font-medium">Back to Site</span>
+            <span className="hidden md:inline text-sm font-medium">Back to Site</span>
           </Link>
         </div>
       </aside>
