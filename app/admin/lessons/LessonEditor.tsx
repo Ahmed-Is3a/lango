@@ -381,7 +381,7 @@ export default function LessonEditor({
       nextBlocks[index] = normalized[0] as Block;
 
       if (normalized.length > 1) {
-        nextBlocks.splice(index + 1, 0, ...normalized.slice(1));
+        nextBlocks.splice(index + 1, 0, ...(normalized.slice(1) as Block[]));
       }
 
       setBlocks(nextBlocks);
