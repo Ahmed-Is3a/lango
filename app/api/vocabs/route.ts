@@ -77,6 +77,30 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, term, definition, language, exampleGerman, exampleEnglish, imageUrl } = body;
+    if (!id) {
+      return NextResponse.json({ error: "id is required" }, { status: 400 });
+    }
+    const updatedVocab = await prisma.vocabulary.update({
+      where: { id },
+      data: {
+        term,
+        definition,
+        language,
+        exampleGerman: exampleGerman ?? null,
+        exampleEnglish: exampleEnglish ?? null,
+        imageUrl: imageUrl ?? null
+      },
+    });
+    return NextResponse.json(updatedVocab, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to update vocabulary" }, { status: 500 });
+  }
+}
 
 
 import { NextResponse } from "next/server";
