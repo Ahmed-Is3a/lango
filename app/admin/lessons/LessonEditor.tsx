@@ -369,8 +369,8 @@ export default function LessonEditor({
       };
 
       const normalized = Array.isArray(parsed)
-        ? parsed.map(normalize).filter((v): v is Block => Boolean(v))
-        : [normalize(parsed)].filter((v): v is Block => Boolean(v));
+        ? parsed.map(normalize).filter((v): v is ReturnType<typeof normalize> => v !== null)
+        : [normalize(parsed)].filter((v): v is ReturnType<typeof normalize> => v !== null);
 
       if (!normalized.length) {
         alert("No valid examples found. Expected german and english fields.");
@@ -378,7 +378,7 @@ export default function LessonEditor({
       }
 
       const nextBlocks = [...blocks];
-      nextBlocks[index] = normalized[0];
+      nextBlocks[index] = normalized[0] as Block;
 
       if (normalized.length > 1) {
         nextBlocks.splice(index + 1, 0, ...normalized.slice(1));
@@ -401,7 +401,7 @@ export default function LessonEditor({
     try {
       const parsed = JSON.parse(input);
 
-      const normalize = (value: any) => {
+      const normalize = (value: any): { type: "fillInTheBlank"; text: string; answers: string[]; wordOptions: string[]; hints: string[] } | null => {
         if (!value || typeof value !== "object") return null;
 
         const text = typeof value.text === "string" ? value.text.trim() : "";
@@ -435,12 +435,12 @@ export default function LessonEditor({
           answers,
           wordOptions,
           hints,
-        } satisfies Block;
+        };
       };
 
       const normalized = Array.isArray(parsed)
-        ? parsed.map(normalize).filter((v): v is Block => Boolean(v))
-        : [normalize(parsed)].filter((v): v is Block => Boolean(v));
+        ? parsed.map(normalize).filter((v): v is { type: "fillInTheBlank"; text: string; answers: string[]; wordOptions: string[]; hints: string[] } => v !== null)
+        : [normalize(parsed)].filter((v): v is { type: "fillInTheBlank"; text: string; answers: string[]; wordOptions: string[]; hints: string[] } => v !== null);
 
       if (!normalized.length) {
         alert("No valid fill-in-the-blank items found. Provide text and answers.");
