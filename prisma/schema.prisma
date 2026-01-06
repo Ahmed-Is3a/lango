@@ -35,13 +35,29 @@ model Vocabulary {
   lessons     Lesson[]
 }
 
+enum QuizLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum QuizQuestionType {
+  MCQ
+  TRUE_FALSE
+  FILL_IN_THE_BLANK
+  MATCHING
+}
+
 model QuizQuestion {
-  id            Int      @id @default(autoincrement())
-  question      String
-  options       String[]
-  correctAnswer Int
-  explanation   String?
-  createdAt     DateTime @default(now())
+  id        Int              @id @default(autoincrement())
+  type      QuizQuestionType @default(MCQ)
+  data      Json             @default("{}")
+  level     QuizLevel        @default(A1)
+  tags      String[]         @default([])
+  createdAt DateTime         @default(now())
 }
 
 model Story {
