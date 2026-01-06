@@ -326,6 +326,139 @@ export default function LessonEditor({
     focusedElement.focus();
   };
 
+  const importExampleJson = (index: number) => {
+    const input = window.prompt(
+      "Paste example JSON (object or array with german, english, pronunciationAudio?)"
+    );
+
+    if (!input) return;
+
+    try {
+      const parsed = JSON.parse(input);
+      const normalize = (value: any) => {
+        if (!value || typeof value !== "object") return null;
+
+        const german =
+          typeof value.german === "string"
+            ? value.german.trim()
+            : typeof value.de === "string"
+            ? value.de.trim()
+            : null;
+        const english =
+          typeof value.english === "string"
+            ? value.english.trim()
+            : typeof value.en === "string"
+            ? value.en.trim()
+            : null;
+        const pronunciationAudio =
+          typeof value.pronunciationAudio === "string"
+            ? value.pronunciationAudio.trim()
+            : typeof value.audio === "string"
+            ? value.audio.trim()
+            : undefined;
+
+        if (!german || !english) return null;
+
+        return {
+          type: "example" as const,
+          german,
+          english,
+          pronunciationAudio,
+        };
+      };
+
+      const normalized = Array.isArray(parsed)
+        ? parsed.map(normalize).filter((v): v is Block => Boolean(v))
+        : [normalize(parsed)].filter((v): v is Block => Boolean(v));
+
+      if (!normalized.length) {
+        alert("No valid examples found. Expected german and english fields.");
+        return;
+      }
+
+      const nextBlocks = [...blocks];
+      nextBlocks[index] = normalized[0];
+
+      if (normalized.length > 1) {
+        nextBlocks.splice(index + 1, 0, ...normalized.slice(1));
+      }
+
+      setBlocks(nextBlocks);
+      setSelectedBlockIndex(index);
+    } catch (error) {
+      alert("Invalid JSON: " + (error as Error).message);
+    }
+  };
+
+  const importFillJson = (index: number) => {
+    const input = window.prompt(
+      "Paste fill-in-the-blank JSON (object or array with text, answers, wordOptions?, hints?)"
+    );
+
+    if (!input) return;
+
+    try {
+      const parsed = JSON.parse(input);
+
+      const normalize = (value: any) => {
+        if (!value || typeof value !== "object") return null;
+
+        const text = typeof value.text === "string" ? value.text.trim() : "";
+        if (!text) return null;
+
+        const blanksCount = (text.match(/___/g) || []).length;
+
+        const rawAnswers = Array.isArray(value.answers)
+          ? value.answers.map((a: any) => String(a ?? ""))
+          : [];
+
+        let answers = [...rawAnswers];
+        if (blanksCount > 0) {
+          answers = answers.slice(0, blanksCount);
+          while (answers.length < blanksCount) answers.push("");
+        } else if (answers.length === 0) {
+          answers = [""];
+        }
+
+        const wordOptions = Array.isArray(value.wordOptions)
+          ? value.wordOptions.map((w: any) => String(w ?? ""))
+          : [];
+
+        const hints = Array.isArray(value.hints)
+          ? value.hints.map((h: any) => String(h ?? ""))
+          : [];
+
+        return {
+          type: "fillInTheBlank" as const,
+          text,
+          answers,
+          wordOptions,
+          hints,
+        } satisfies Block;
+      };
+
+      const normalized = Array.isArray(parsed)
+        ? parsed.map(normalize).filter((v): v is Block => Boolean(v))
+        : [normalize(parsed)].filter((v): v is Block => Boolean(v));
+
+      if (!normalized.length) {
+        alert("No valid fill-in-the-blank items found. Provide text and answers.");
+        return;
+      }
+
+      const nextBlocks = [...blocks];
+      nextBlocks[index] = normalized[0];
+      if (normalized.length > 1) {
+        nextBlocks.splice(index + 1, 0, ...normalized.slice(1));
+      }
+
+      setBlocks(nextBlocks);
+      setSelectedBlockIndex(index);
+    } catch (error) {
+      alert("Invalid JSON: " + (error as Error).message);
+    }
+  };
+
   const handleAddNewVocab = async () => {
     if (!newVocabForm.term.trim() || !newVocabForm.definition.trim()) {
       alert("Please fill in both term and definition");
@@ -691,9 +824,9 @@ export default function LessonEditor({
                           onDragEnd={handleDragEnd}
                           onDrop={(e) => handleDrop(e, index)}
                           onClick={() => setSelectedBlockIndex(index)}
-                          className={`group relative rounded-xl bg-white dark:bg-slate-900 border transition-all p-2 cursor-move ${
+                          className={`group relative rounded-xl border bg-white dark:bg-slate-900 transition-all p-2 cursor-move ${
                             selectedBlockIndex === index
-                              ? "border-primary border-2 bg-primary/5 dark:bg-primary/10"
+                              ? "border-gray-200 border-2 bg-primary/5 dark:bg-primary/10"
                               : draggedIndex === index
                               ? "opacity-50 border-slate-300 dark:border-slate-700"
                               : dragOverIndex === index &&
@@ -708,7 +841,7 @@ export default function LessonEditor({
                           </div>
 
                           {/* Controls */}
-                          <div className="absolute right-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute top-[-7px] right-2 flex opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -740,7 +873,7 @@ export default function LessonEditor({
                             </button>
                           </div>
                           {/* block header */}
-                          <div className="text-sm text-slate-500 dark:text-slate-400 m-2 font-medium">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mx-2 font-medium">
                             {block.type.charAt(0).toUpperCase() +
                               block.type.slice(1)}{" "}
                           </div>
@@ -753,11 +886,11 @@ export default function LessonEditor({
                               <div>
                                 {/* rich-text toolbar */}
                                 {block.type === "paragraph" && (
-                                  <div className="mx-6 flex gap-3">
+                                  <div className="mx-4 flex gap-2">
                                     <button
                                       onClick={() => {
                                         const textarea = document.querySelector(
-                                          `textarea[placeholder="Enter ${block.type} content..."]`
+                                          `textarea[placeholder="Enter ${block.type} ..."]`
                                         ) as HTMLTextAreaElement;
                                         if (textarea && textarea.value) {
                                           const start = textarea.selectionStart;
@@ -817,7 +950,7 @@ export default function LessonEditor({
                                           }
                                         }
                                       }}
-                                      className="hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 underline"
+                                      className="text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 underline"
                                       title="Make selected text underline"
                                     >
                                       U
@@ -832,13 +965,13 @@ export default function LessonEditor({
                                               : index
                                           )
                                         }
-                                        className="hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                        className="text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
                                         title="Text color"
                                       >
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
                                       </button>
                                       {showColorPicker === index && (
-                                        <div className="absolute top-full left-0 mt-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-50 flex gap-1">
+                                        <div className="absolute top-full left-0 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg z-50 flex gap-1">
                                           <button
                                             onClick={() => {
                                               const textarea =
@@ -873,7 +1006,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-red-500 hover:ring-2 ring-red-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-red-500 hover:ring-2 ring-red-300 transition-all"
                                             title="Red"
                                           />
                                           <button
@@ -910,7 +1043,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-blue-500 hover:ring-2 ring-blue-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-blue-500 hover:ring-2 ring-blue-300 transition-all"
                                             title="Blue"
                                           />
                                           <button
@@ -947,7 +1080,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-green-500 hover:ring-2 ring-green-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-green-500 hover:ring-2 ring-green-300 transition-all"
                                             title="Green"
                                           />
                                           <button
@@ -984,7 +1117,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-yellow-500 hover:ring-2 ring-yellow-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-yellow-500 hover:ring-2 ring-yellow-300 transition-all"
                                             title="Yellow"
                                           />
                                           <button
@@ -1021,7 +1154,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-orange-500 hover:ring-2 ring-orange-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-orange-500 hover:ring-2 ring-orange-300 transition-all"
                                             title="Orange"
                                           />
                                           <button
@@ -1058,7 +1191,7 @@ export default function LessonEditor({
                                                 }
                                               }
                                             }}
-                                            className="w-6 h-6 rounded-full bg-purple-500 hover:ring-2 ring-purple-300 transition-all"
+                                            className="w-4 h-4 rounded-[2px] bg-purple-500 hover:ring-2 ring-purple-300 transition-all"
                                             title="Purple"
                                           />
                                         </div>
@@ -1087,13 +1220,13 @@ export default function LessonEditor({
                                           textareaRefs.current[index + 1]?.focus();
                                         }, 0);
                                       }}
-                                      className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                      className="text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center"
                                       title="Split into two paragraphs"
                                     >
-                                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3h6v6H5V3zm0 12h6v6H5v-6zm8-6h6v6h-6V9z"/></svg>
+                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5 3h6v6H5V3zm0 12h6v6H5v-6zm8-6h6v6h-6V9z"/></svg>
                                       <span>Split</span>
                                     </button>
-                                    <div className="w-px bg-slate-300 dark:bg-slate-600"></div>
+                                    <div className="w-px h-4 my-auto bg-slate-300 dark:bg-slate-600"></div>
                                     <button
                                       onClick={() => {
                                         const textarea = document.querySelector(
@@ -1127,12 +1260,12 @@ export default function LessonEditor({
                                           }, 0);
                                         }
                                       }}
-                                      className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                      className="text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
                                       title="Add list item"
                                     >
-                                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 7h18v2H3zm0 7h18v2H3z"/></svg>
+                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 5h18v2H3zm0 7h18v2H3zm0 7h18v2H3z"/></svg>
                                     </button>
-                                    <div className="w-px bg-slate-300 dark:bg-slate-600"></div>
+                                    <div className="w-px h-4 my-auto bg-slate-300 dark:bg-slate-600"></div>
                                     <button
                                       onClick={() => {
                                         const textarea = document.querySelector(
@@ -1169,13 +1302,13 @@ export default function LessonEditor({
                                           }, 0);
                                         }
                                       }}
-                                      className="px-3 py-1 text-sm rounded hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                      className="text-sm rounded hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
                                       title="Indent"
                                     >
                                       <svg
                                         fill="#000000"
-                                        width="20px"
-                                        height="20px"
+                                        width="15px"
+                                        height="15px"
                                         viewBox="0 -2.5 29 29"
                                         xmlns="http://www.w3.org/2000/svg"
                                         data--h-bstatus="0OBSERVED"
@@ -1272,10 +1405,10 @@ export default function LessonEditor({
                                           }
                                         }
                                       }}
-                                      className="px-3 py-1 text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                                      className="text-sm rounded hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center gap-1"
                                       title="Outdent"
                                     >
-                                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3zm6 9h12v2H9v-2zm0 5h12v2H9v-2z"/></svg>
+                                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3zm6 9h12v2H9v-2zm0 5h12v2H9v-2z"/></svg>
                                     </button>
                                   </div>
                                 )}
@@ -1301,7 +1434,7 @@ export default function LessonEditor({
                                       e.target.scrollHeight + "px";
                                   }}
                                   placeholder={`Enter ${block.type} content...`}
-                                  className="w-full p-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white overflow-hidden"
+                                  className="w-full text-[18px] p-2 dark:bg-slate-800 text-slate-900 dark:text-white overflow-hidden focus:outline-none"
                                   rows={block.type === "paragraph" ? 4 : 1}
                                 />
                               </div>
@@ -1682,6 +1815,16 @@ export default function LessonEditor({
                                 placeholder="Pronunciation audio URL (German)"
                                 className="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
                               />
+                              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                                <button
+                                  type="button"
+                                  onClick={() => importExampleJson(index)}
+                                  className="px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-primary hover:border-primary hover:bg-primary/5 transition-colors font-semibold text-xs"
+                                >
+                                  Paste JSON (single or many)
+                                </button>
+                                <span>Use objects with german, english, pronunciationAudio.</span>
+                              </div>
                             </div>
                           )}
                           {block.type === "multipleChoice" && (
@@ -1774,39 +1917,14 @@ export default function LessonEditor({
                           )}
                           {block.type === "fillInTheBlank" && (
                             <div className="space-y-3">
-                              <div className="flex gap-2 justify-end">
+                              <div className="flex gap-3 flex-wrap items-center text-[11px] text-slate-500 justify-between">
                                 <button
-                                  onClick={() => {
-                                    const json = window.prompt("Paste fill-in-the-blank JSON (text, answers, wordOptions, hints)");
-                                    if (!json) return;
-                                    try {
-                                      const parsed = JSON.parse(json);
-                                      const text = typeof parsed.text === "string" ? parsed.text : "";
-                                      const answers = Array.isArray(parsed.answers)
-                                        ? parsed.answers.map((a: any) => String(a ?? ""))
-                                        : [];
-                                      const wordOptions = Array.isArray(parsed.wordOptions)
-                                        ? parsed.wordOptions.map((w: any) => String(w ?? ""))
-                                        : [];
-                                      const hints = Array.isArray(parsed.hints)
-                                        ? parsed.hints.map((h: any) => String(h ?? ""))
-                                        : [];
-
-                                      updateBlock(index, {
-                                        ...block,
-                                        text,
-                                        answers,
-                                        wordOptions,
-                                        hints,
-                                      });
-                                    } catch (err) {
-                                      alert("Invalid JSON. Please ensure it includes text, answers, and optional wordOptions/hints.");
-                                    }
-                                  }}
-                                  className="px-3 py-1 text-xs font-medium rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+                                  onClick={() => importFillJson(index)}
+                                  className="px-3 py-1 text-xs font-semibold rounded border border-slate-200 dark:border-slate-700 text-primary hover:border-primary hover:bg-primary/5 transition-colors"
                                 >
-                                  Import from JSON
+                                  Paste JSON (single or many)
                                 </button>
+                                <span>Use text with ___, answers array, optional wordOptions/hints.</span>
                               </div>
                               <div>
                                 <label className="text-xs font-medium text-slate-600 dark:text-slate-400 block mb-1">
