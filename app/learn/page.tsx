@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ArrowLeftIcon from '../components/icons/arrow-left';
+import DeleteIcon from '../components/icons/delete';
+import EditIcon from '../components/icons/edit';
 
 interface Vocab {
   id: number;
@@ -192,7 +195,7 @@ export default function LearnPage() {
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="text-gray-600 dark:text-gray-300"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
           </Link>
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-            Learn Vocabulary
+            Learn Vocabularies
           </h1>
           <div className="w-16"></div>
         </div>
@@ -214,7 +217,7 @@ export default function LearnPage() {
         </div>
 
         {/* Flashcard */}
-        <div className="mb-6 flex justify-center">
+        <div className=" mb-2 flex justify-center">
           <div
             className="relative h-90 w-full max-w-2xl cursor-pointer perspective-1000"
             onClick={handleFlip}
@@ -225,11 +228,8 @@ export default function LearnPage() {
               }`}
             >
               {/* Front of card */}
-              <div className="absolute inset-0 backface-hidden rounded-2xl border border-gray-300 bg-white p-12 shadow-2xl dark:border-gray-700 dark:bg-gray-800">
+              <div className="absolute inset-0 backface-hidden rounded-2xl border border-gray-300 bg-white p-8 shadow-2xl dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="mb-5 rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600 dark:bg-blue-900 dark:text-blue-200">
-                    {currentItem?.language?.toUpperCase() || 'LANG'}
-                  </div>
                   <h2 className="mb-6 text-5xl font-bold text-gray-800 dark:text-gray-200">
                     {currentItem?.term || 'No items yet'}
                   </h2>
@@ -275,9 +275,10 @@ export default function LearnPage() {
         <div className="mb-8 flex justify-center gap-5">
           <button
             onClick={handlePrevious}
-            className="rounded-full bg-white px-6 py-3 font-semibold text-gray-700 shadow-lg transition-all hover:scale-105 hover:shadow-xl dark:bg-gray-800 dark:text-gray-200"
+            className="flex gap-1 rounded-full bg-white px-6 py-3 font-semibold text-gray-700 shadow-lg transition-all hover:scale-105 hover:shadow-xl dark:bg-gray-800 dark:text-gray-200"
           >
-            ← Previous
+          <ArrowLeftIcon />
+          Prev
           </button>
           <button
             onClick={handleFlip}
@@ -302,39 +303,39 @@ export default function LearnPage() {
               value={newTerm}
               onChange={(e) => setNewTerm(e.target.value)}
               placeholder="Term"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newDefinition}
               onChange={(e) => setNewDefinition(e.target.value)}
               placeholder="Definition"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newLanguage}
               onChange={(e) => setNewLanguage(e.target.value)}
               placeholder="Language (e.g., en, es)"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newExampleGerman}
               onChange={(e) => setNewExampleGerman(e.target.value)}
               placeholder="Example (German) — optional"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newExampleEnglish}
               onChange={(e) => setNewExampleEnglish(e.target.value)}
               placeholder="Example (English) — optional"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newImageUrl}
               onChange={(e) => setNewImageUrl(e.target.value)}
               placeholder="Image URL — optional"
-              className="rounded-md border px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
+              className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
-            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold">Add</button>
+            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold"> + Add</button>
           </div>
         </div>
 
@@ -360,7 +361,7 @@ export default function LearnPage() {
                     setIsFlipped(false);
                   }
                 }}
-                className={`rounded-lg border-2 p-4 text-left transition-all cursor-pointer ${
+                className={`flex justify-between rounded-lg border-2 p-2 text-left transition-all cursor-pointer ${
                   index === currentIndex
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
@@ -379,56 +380,114 @@ export default function LearnPage() {
                       {word?.definition}
                     </div>
                     {/* inline examples if present */}
-                    {word?.exampleGerman && (
+                    {/* {word?.exampleGerman && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">DE: {word.exampleGerman}</div>
                     )}
                     {word?.exampleEnglish && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">EN: {word.exampleEnglish}</div>
-                    )}
+                    )} */}
                   </div>
                   {learnedWords.has(word?.id) && (
                     <span className="text-xl">✓</span>
                   )}
                 </div>
                 <div className="mt-3 flex gap-3">
-                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border px-5 py-1 text-sm text-gray-200">Edit</button>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border px-3 py-1 text-sm text-red-400">Delete</button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border p-1 text-sm text-gray-200">
+                    <EditIcon />
+                  </button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border p-1 text-sm text-red-400 hover:bg-red-100">
+                    <DeleteIcon />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-          {editingId !== null && (
-            <div className="mt-6 rounded-lg border p-4">
-              <h4 className="mb-3 font-semibold">Edit Term</h4>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-                <input value={editTerm} onChange={(e) => setEditTerm(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
-                <input value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
-                <input value={editLanguage} onChange={(e) => setEditLanguage(e.target.value)} className="rounded-md border px-3 py-2 dark:bg-gray-900" />
-                <div className="flex gap-2">
-                  <button onClick={saveEdit} className="rounded-md bg-blue-600 px-4 py-2 text-white">Save</button>
-                  <button onClick={cancelEdit} className="rounded-md border px-4 py-2">Cancel</button>
+         
+
+      {/* Edit Modal Popup */}
+      {editingId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={cancelEdit}>
+          <div className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
+            {/* Close button */}
+            <button
+              onClick={cancelEdit}
+              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h4 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-200">Edit Term</h4>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Term</label>
+                  <input
+                    value={editTerm}
+                    onChange={(e) => setEditTerm(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Definition</label>
+                  <input
+                    value={editDefinition}
+                    onChange={(e) => setEditDefinition(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                  />
                 </div>
               </div>
-              {/* optional examples edit */}
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Language</label>
+                <input
+                  value={editLanguage}
+                  onChange={(e) => setEditLanguage(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Example (German) — optional</label>
                 <input
                   value={editExampleGerman}
                   onChange={(e) => setEditExampleGerman(e.target.value)}
-                  placeholder="Example (German) — optional"
-                  className="rounded-md border px-3 py-2 dark:bg-gray-900"
+                  placeholder="Enter German example sentence"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
                 />
+              </div>
+<div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Example (English) — optional</label>
                 <input
                   value={editExampleEnglish}
                   onChange={(e) => setEditExampleEnglish(e.target.value)}
-                  placeholder="Example (English) — optional"
-                  className="rounded-md border px-3 py-2 dark:bg-gray-900"
+                  placeholder="Enter English example sentence"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
                 />
               </div>
-            </div>
-          )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={saveEdit}
+                  className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:shadow-lg"
+                >
+                  Save Changes
+                </button>
+<button
+                  onClick={cancelEdit}
+                  className="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
         </div>
       </div>
     </div>
+      )
+}
+    </div>
+      </div>
+      </div>
   );
 }
-
