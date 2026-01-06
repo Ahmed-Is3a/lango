@@ -694,8 +694,8 @@ useEffect(() => {
                 <div className="font-semibold">
                   {checkAnswer() ? '✓ Correct!' : '✗ Incorrect'}
                 </div>
-                {currentQuestion.data.explanation && (
-                  <div className="mt-2 text-sm">{currentQuestion.data.explanation}</div>
+                {currentQuestion.type !== 'MATCHING' && (currentQuestion.data as any).explanation && (
+                  <div className="mt-2 text-sm">{(currentQuestion.data as any).explanation}</div>
                 )}
               </div>
             )}
