@@ -1,3 +1,4 @@
+'use client';
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
 const DB_NAME = 'LangoApp';
@@ -115,6 +116,31 @@ export const getProgress = async (questionId?: number) => {
     request.onerror = () => reject(request.error);
   });
 };
+
+export const getLatestProgress = async () => {
+  const db = await initDB();
+  const tx = db.transaction(PROGRESS_STORE, 'readonly');
+  const store = tx.objectStore(PROGRESS_STORE);
+
+  return new Promise<{id: number; data: any} | null>((resolve, reject) => {
+    const request = store.openCursor(null, 'prev'); // reverse order
+
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) {
+        resolve(null);
+        return;
+      }
+
+      resolve({
+        id: cursor.key as number,
+        data: cursor.value
+      });
+    };
+    request.onerror = () => reject(request.error);
+  });
+};
+
 
 // Clear old data
 export const clearOldData = async () => {
