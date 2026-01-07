@@ -5,12 +5,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 
-  import { 
+import { 
   saveQuizzesToDB, 
   getQuizzesFromDB, 
-  saveProgress 
+  saveProgress,
+  getProgress,
+  getLatestProgress
 } from '@/lib/indexeddb';
-
 
 
 type MCQQuestion = {
@@ -79,9 +80,8 @@ export default function QuizPage() {
   ).sort();
 
 
-
-
 useEffect(() => {
+  console.log("TEST:: useEffect triggered with", { selectedLevel, selectedTags });
   const load = async () => {
     try {
       setLoading(true);
@@ -96,6 +96,11 @@ useEffect(() => {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed to fetch quiz');
         const data = (await res.json()) as Question[];
+        
+        await getLatestProgress().then((pro) => {
+          setCurrentQuestionIndex(pro ? pro.id : 0);
+          // console.log("TEST:: Latest progress inside load:", pro?.id);
+        });
         
         // Save to IndexedDB
         await saveQuizzesToDB(data);
@@ -120,33 +125,6 @@ useEffect(() => {
   };
   load();
 }, [selectedLevel, selectedTags]);
-
-
-
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (selectedLevel) params.append('level', selectedLevel);
-        if (selectedTags.size > 0) {
-          params.append('tags', Array.from(selectedTags).join(','));
-        }
-        const url = params.size > 0 ? `/api/quiz?${params}` : '/api/quiz';
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch quiz');
-        const data = (await res.json()) as Question[];
-        setQuestions(data);
-        setError(null);
-      } catch (err: any) {
-        setError(err?.message || 'Unable to load quiz questions; using fallback data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [selectedLevel, selectedTags]);
 
   useEffect(() => {
     if (!error) return;
@@ -204,7 +182,7 @@ useEffect(() => {
   }
   
   // Save progress to IndexedDB
-  saveProgress(currentQuestion.id, answer, isCorrect).catch(err => 
+  saveProgress(currentQuestionIndex, answer, isCorrect).catch(err => 
     console.error('Failed to save progress', err)
   );
 };
@@ -230,7 +208,7 @@ useEffect(() => {
     setSelectedLevel('');
   };
 
-  const handleLevelChange = (level: string) => {
+  const handleLevelChange = async (level: string) => {
     setSelectedLevel(level);
     setCurrentQuestionIndex(0);
     setSelectedAnswers(new Map());
