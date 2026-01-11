@@ -1,6 +1,13 @@
 'use client';
 
-export type BlockType = 'title' | 'header' | 'subheader' | 'paragraph' | 'table' | 'audio' | 'youtube' | 'image' | 'vocabulary' | 'example' | 'multipleChoice' | 'fillInTheBlank' | 'matchingPairs' | 'divider';
+export type BlockType = 'title' | 'header' | 'subheader' | 'paragraph' | 'list' | 'table' | 'audio' | 'youtube' | 'image' | 'vocabulary' | 'example' | 'multipleChoice' | 'fillInTheBlank' | 'matchingPairs' | 'divider';
+
+export type ListBlock = {
+  type: 'list';
+  title?: string;
+  ordered?: boolean;
+  items: string[];
+};
 
 export type TextBlock = {
   type: 'title' | 'header' | 'subheader' | 'paragraph';
@@ -74,7 +81,7 @@ export type DividerBlock = {
   type: 'divider';
 };
 
-export type Block = TextBlock | TableBlock | AudioBlock | YouTubeBlock | ImageBlock | VocabularyBlock | ExampleBlock | MultipleChoiceBlock | FillInTheBlankBlock | MatchingPairBlock | DividerBlock;
+export type Block = TextBlock | TableBlock | AudioBlock | YouTubeBlock | ImageBlock | VocabularyBlock | ExampleBlock | MultipleChoiceBlock | FillInTheBlankBlock | MatchingPairBlock | DividerBlock | ListBlock;
 
 export const emptyBlock = (type: BlockType): Block => {
   switch (type) {
@@ -84,6 +91,8 @@ export const emptyBlock = (type: BlockType): Block => {
       return { type, text: '' };
     case 'paragraph':
       return { type, text: '', items: [] };
+    case 'list':
+      return { type, title: '', ordered: false, items: ['List item'] };
     case 'table':
       return { type, title: '', headers: ['Col 1', 'Col 2'], rows: [['', '']] };
     case 'audio':
@@ -122,6 +131,7 @@ export const blockIcons: Record<BlockType, string> = {
   fillInTheBlank: '✏️',
   matchingPairs: '🔗',
   divider: '➖',
+  list: '🗒️',
 };
 
 export const blockLabels: Record<BlockType, string> = {
@@ -139,4 +149,5 @@ export const blockLabels: Record<BlockType, string> = {
   fillInTheBlank: 'Fill in the Blank',
   matchingPairs: 'Matching Pairs',
   divider: 'Divider',
+  list: 'List',
 };
