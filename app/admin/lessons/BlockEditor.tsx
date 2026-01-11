@@ -278,6 +278,55 @@ export default function BlockEditor({
               </div>
             )}
 
+
+            {block.type === "list" && (
+  <div className="space-y-3">
+    <input
+      type="text"
+      value={(block as any).title ?? ""}
+      onChange={(e) => onUpdateBlock(index, { ...block, title: e.target.value })}
+      placeholder="List title (optional)"
+      className="w-full p-2 border ..."/>
+    <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <input
+        type="checkbox"
+        checked={Boolean((block as any).ordered)}
+        onChange={(e) => onUpdateBlock(idx, { ...block, ordered: e.target.checked })}
+        className="rounded border-slate-300 text-primary"/>
+      Ordered list
+    </label>
+    <div className="space-y-2">
+      {((block as any).items ?? []).map((item: string, itemIdx: number) => (
+        <div key={itemIdx} className="flex gap-2">
+          <input
+            type="text"
+            value={item}
+            onChange={(e) => {
+              const items = [...(block as any).items];
+              items[itemIdx] = e.target.value;
+              onUpdateBlock(idx, { ...block, items });
+            }}
+            placeholder={`Item ${itemIdx + 1}`}
+            className="flex-1 p-2 border ..."/>
+          <button
+            onClick={() => {
+              const next = (block as any).items.filter((_, i) => i !== itemIdx);
+              onUpdateBlock(idx, { ...block, items: next.length ? next : [''] });
+            }}
+            className="px-2 py-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
+            ×
+          </button>
+        </div>
+      ))}
+      <button
+        onClick={() => onUpdateBlock(idx, { ...block, items: [...((block as any).items ?? []), ''] })}
+        className="text-sm text-primary hover:text-blue-700 font-medium">
+        + Add Item
+      </button>
+    </div>
+  </div>
+)}
+
             {block.type === "table" && (
               <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
                 <div>
