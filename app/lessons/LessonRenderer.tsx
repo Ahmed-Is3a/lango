@@ -6,6 +6,7 @@ type LessonBlock =
   | { type: "header"; text: string }
   | { type: "subheader"; text: string }
   | { type: "paragraph"; text: string; translation?: string; items?: string[] }
+  | { type: "list"; title?: string; ordered?: boolean; items: string[] }
   | { type: "table"; title?: string; headers: string[]; rows: string[][] }
   | { type: "audio"; src: string; caption?: string }
   | { type: "youtube"; videoId: string; caption?: string }
@@ -398,6 +399,28 @@ export default function LessonRenderer({ blocks }: { blocks: LessonBlock[] }) {
               </div>
             );
           }
+
+          case "list":
+  return (
+    <div key={i} className="my-4">
+      {b.title && <h4 className="text-lg font-semibold mb-2">{b.title}</h4>}
+      {(b.items?.length ?? 0) > 0 ? (
+        b.ordered ? (
+          <ol className="list-decimal list-inside space-y-2 text-lg">
+            {b.items.map((item, idx) => <li key={idx}>{renderFormattedText(item)}</li>)}
+          </ol>
+        ) : (
+          <ul className="list-disc list-inside space-y-2 text-lg">
+            {b.items.map((item, idx) => <li key={idx}>{renderFormattedText(item)}</li>)}
+          </ul>
+        )
+      ) : (
+        <p className="text-sm text-slate-500 italic">No items provided.</p>
+      )}
+    </div>
+  );
+
+  
           case "table":
             return (
               <div key={i} className="my-4">
