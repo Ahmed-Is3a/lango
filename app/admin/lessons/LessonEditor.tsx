@@ -615,6 +615,10 @@ export default function LessonEditor({
                 <svg className="w-5 h-5 mb-1 text-slate-500 group-hover:text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-8h2v16H7zm4-2h2v18h-2zm4 4h2v14h-2zm4-4h2v18h-2z"/></svg>
                 <span className="text-xs font-medium">Text</span>
               </button>
+              <button onClick={() => addBlock("list")} className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:text-primary transition-all group bg-slate-50 dark:bg-slate-800/50">
+  <svg className="w-5 h-5 mb-1 text-slate-500 group-hover:text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+  <span className="text-xs font-medium">List</span>
+</button>
               <button
                 onClick={() => addBlock("image")}
                 className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:text-primary transition-all group bg-slate-50 dark:bg-slate-800/50"
