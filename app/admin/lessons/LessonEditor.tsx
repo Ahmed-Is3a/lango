@@ -17,6 +17,8 @@ interface LessonEditorProps {
   levels: Array<{ id: number; slug: string; title: string }>;
   levelTag: "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
   setLevelTag: (tag: "A1" | "A2" | "B1" | "B2" | "C1" | "C2") => void;
+  order: number;
+  setOrder: (order: number) => void;
   onSave: () => void;
   onSaveDraft?: () => void;
   onPublish?: () => void;
@@ -47,6 +49,8 @@ export default function LessonEditor({
   levels,
   levelTag,
   setLevelTag,
+  order,
+  setOrder,
   onSave,
   onSaveDraft,
   onPublish,
@@ -616,9 +620,9 @@ export default function LessonEditor({
                 <span className="text-xs font-medium">Text</span>
               </button>
               <button onClick={() => addBlock("list")} className="flex flex-col items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:text-primary transition-all group bg-slate-50 dark:bg-slate-800/50">
-  <svg className="w-5 h-5 mb-1 text-slate-500 group-hover:text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-  <span className="text-xs font-medium">List</span>
-</button>
+                <svg className="w-5 h-5 mb-1 text-slate-500 group-hover:text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                <span className="text-xs font-medium">List</span>
+              </button>
               <button
                 onClick={() => addBlock("image")}
                 className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 hover:text-primary dark:hover:text-primary transition-all group bg-slate-50 dark:bg-slate-800/50"
@@ -2226,8 +2230,8 @@ export default function LessonEditor({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {/* Metadata */}
             <section>
-              <label className="block mb-4">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="flex gap-1 mb-4">
+                <span className="text-sm text-slate-700 dark:text-slate-300">
                   Level
                 </span>
                 <select
@@ -2235,9 +2239,9 @@ export default function LessonEditor({
                   onChange={(e) =>
                     setLevelId(e.target.value ? Number(e.target.value) : null)
                   }
-                  className="block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:outline-none sm:text-sm p-2"
+                  className="block w-full rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:outline-none sm:text-sm px-2"
                 >
-                  <option value="">Select a level...</option>
+                  <option value="">Select level...</option>
                   {levels.map((level) => (
                     <option key={level.id} value={level.id}>
                       {level.title}
@@ -2246,23 +2250,52 @@ export default function LessonEditor({
                 </select>
               </label>
 
-              <label className="block mb-2">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Lesson Slug
+              <label className="flex mb-2">
+                <span className="mr-2 p-0.5 text-sm text-slate-700 dark:text-slate-300">
+                  Slug:
                 </span>
                 <input
                   type="text"
                   value={lessonSlug}
                   onChange={(e) => setLessonSlug(e.target.value)}
-                  className="block w-full rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring focus:ring-blue-300 sm:text-sm p-1"
+                  className="block w-full px-2 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:outline-none focus:ring focus:ring-blue-300 sm:text-sm "
                   placeholder="lesson-slug"
                 />
-                <p className="text-[9px] text-slate-800 dark:text-slate-400 mt-1">
-                  URL-friendly identifier (auto-generated from title)
-                </p>
               </label>
 
-              
+              {/* Lesson Order */}
+              <div>
+  <div className="flex items-center gap-2 mb-2">
+    <label className="text-sm text-slate-700 dark:text-slate-300">
+      Order
+    </label>
+    <div className="flex items-center border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800">
+      <button
+        onClick={() => setOrder(Math.max(0, order - 1))}
+        className="px-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        −
+      </button>
+      <input
+        type="text" inputMode="numeric"
+        min="0"
+        value={order}
+        onChange={(e) => setOrder(Math.max(0, Number(e.target.value)))}
+        className="w-8 text-center justify-center border-l border-r border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none"
+        placeholder="0"
+      />
+      <button
+        onClick={() => setOrder(order + 1)}
+        className="px-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        +
+      </button>
+    </div>
+  </div>
+  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+    Order in which the lesson appears
+  </p>
+</div>
 
               <label className="block mb-4">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
