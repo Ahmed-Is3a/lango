@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import ArrowLeftIcon from '../components/icons/arrow-left';
-import DeleteIcon from '../components/icons/delete';
-import EditIcon from '../components/icons/edit';
-import { getAllVocabsFromDB, saveVocabsToDB } from '@/lib/indexeddb';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import ArrowLeftIcon from "../components/icons/arrow-left";
+import DeleteIcon from "../components/icons/delete";
+import EditIcon from "../components/icons/edit";
+import { getAllVocabsFromDB, saveVocabsToDB, deleteVocabFromDB } from "@/lib/indexeddb";
 
 interface Vocab {
   id: number;
@@ -34,17 +35,16 @@ export default function LearnPage() {
         const cachedVocabs = await getAllVocabsFromDB();
 
         if (Array.isArray(cachedVocabs) && cachedVocabs.length > 0) {
-          console.log('Loaded vocabularies from IndexedDB');
+          console.log("Loaded vocabularies from IndexedDB");
           setItems(cachedVocabs as Vocab[]);
           return;
         }
-        const res = await fetch('/api/vocabs');
-        if (!res.ok) throw new Error('Network');
-        const data = await res.json() || [];
+        const res = await fetch("/api/vocabs");
+        if (!res.ok) throw new Error("Network");
+        const data = (await res.json()) || [];
         // Save to IndexedDB
         await saveVocabsToDB(data);
         setItems(data);
-        
       } catch {}
       setCurrentIndex(0);
       setIsFlipped(false);
@@ -71,49 +71,39 @@ export default function LearnPage() {
 
   const progress = items.length ? (learnedWords.size / items.length) * 100 : 0;
 
-  const [newTerm, setNewTerm] = useState('');
-  const [newDefinition, setNewDefinition] = useState('');
-  const [newLanguage, setNewLanguage] = useState('de');
+  const [newTerm, setNewTerm] = useState("");
+  const [newDefinition, setNewDefinition] = useState("");
+  const [newLanguage, setNewLanguage] = useState("de");
   // add optional inputs for creation
-  const [newExampleGerman, setNewExampleGerman] = useState('');
-  const [newExampleEnglish, setNewExampleEnglish] = useState('');
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newExampleGerman, setNewExampleGerman] = useState("");
+  const [newExampleEnglish, setNewExampleEnglish] = useState("");
+  const [newImageUrl, setNewImageUrl] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editTerm, setEditTerm] = useState('');
-  const [editDefinition, setEditDefinition] = useState('');
-  const [editLanguage, setEditLanguage] = useState('');
+  const [editTerm, setEditTerm] = useState("");
+  const [editDefinition, setEditDefinition] = useState("");
+  const [editLanguage, setEditLanguage] = useState("");
   // add optional inputs for editing
-  const [editExampleGerman, setEditExampleGerman] = useState('');
-  const [editExampleEnglish, setEditExampleEnglish] = useState('');
+  const [editExampleGerman, setEditExampleGerman] = useState("");
+  const [editExampleEnglish, setEditExampleEnglish] = useState("");
 
   const addItem = async () => {
-    const res = await fetch('/api/vocabs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    saveVocabsToDB([
+      ...items,
+      {
+        id: Date.now(), // temporary ID
         term: newTerm,
         definition: newDefinition,
         language: newLanguage,
-        // send only if provided
         exampleGerman: newExampleGerman.trim() || undefined,
         exampleEnglish: newExampleEnglish.trim() || undefined,
         imageUrl: newImageUrl.trim() || undefined,
-      }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      setItems((prev) => {
-        const updated = [json.data, ...prev];
-        try {
-          localStorage.setItem('vocabs-cache', JSON.stringify(updated));
-        } catch {}
-        return updated;
-      });
-      setNewTerm('');
-      setNewDefinition('');
-      setNewExampleGerman('');
-      setNewExampleEnglish('');
-    }
+      },
+    ]);
+
+      setNewTerm("");
+      setNewDefinition("");
+      setNewExampleGerman("");
+      setNewExampleEnglish("");
   };
 
   const startEdit = (v: Vocab) => {
@@ -121,16 +111,16 @@ export default function LearnPage() {
     setEditDefinition(v.definition);
     setEditLanguage(v.language);
     // prefill optional fields
-    setEditExampleGerman(v.exampleGerman ?? '');
-    setEditExampleEnglish(v.exampleEnglish ?? '');
+    setEditExampleGerman(v.exampleGerman ?? "");
+    setEditExampleEnglish(v.exampleEnglish ?? "");
     setEditingId(v.id);
   };
 
   const saveEdit = async () => {
     if (!editingId) return;
-    const res = await fetch('/api/vocabs', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/vocabs", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: editingId,
         term: editTerm,
@@ -145,7 +135,9 @@ export default function LearnPage() {
       const json = await res.json();
       setItems((prev) => {
         const updated = prev.map((p) => (p.id === editingId ? json.data : p));
-        try { localStorage.setItem('vocabs-cache', JSON.stringify(updated)); } catch {}
+        try {
+          localStorage.setItem("vocabs-cache", JSON.stringify(updated));
+        } catch {}
         return updated;
       });
       cancelEdit();
@@ -154,32 +146,17 @@ export default function LearnPage() {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditTerm('');
-    setEditDefinition('');
-    setEditLanguage('');
-    setEditExampleGerman('');
-    setEditExampleEnglish('');
+    setEditTerm("");
+    setEditDefinition("");
+    setEditLanguage("");
+    setEditExampleGerman("");
+    setEditExampleEnglish("");
   };
 
   const removeItem = async (id: number) => {
-    const res = await fetch(`/api/vocabs?id=${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to delete vocabulary");
-  }
-    if (res.ok) {
-      setItems((prev) => {
-        const updated = prev.filter((p) => p.id !== id);
-        try { localStorage.setItem('vocabs-cache', JSON.stringify(updated)); } catch {}
-        return updated;
-      });
-      setLearnedWords((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      if (currentIndex >= items.length - 1) setCurrentIndex(0);
-    }
+    deleteVocabFromDB(id);
+    const data = await getAllVocabsFromDB()
+    setItems(data as Vocab[])
   };
 
   return (
@@ -191,7 +168,16 @@ export default function LearnPage() {
             href="/"
             className="text-lg font-semibold text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="text-gray-600 dark:text-gray-300"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="currentColor"
+              className="text-gray-600 dark:text-gray-300"
+            >
+              <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" />
+            </svg>
           </Link>
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
             Learn Vocabularies
@@ -223,14 +209,14 @@ export default function LearnPage() {
           >
             <div
               className={`absolute inset-0 preserve-3d transition-transform duration-700 ${
-                isFlipped ? 'rotate-y-180' : ''
+                isFlipped ? "rotate-y-180" : ""
               }`}
             >
               {/* Front of card */}
               <div className="absolute inset-0 backface-hidden rounded-2xl border border-gray-300 bg-white p-8 shadow-2xl dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <h2 className="mb-6 text-5xl font-bold text-gray-800 dark:text-gray-200">
-                    {currentItem?.term || 'No items yet'}
+                    {currentItem?.term || "No items yet"}
                   </h2>
                   <p className="text-gray-500 dark:text-gray-400">
                     Click to reveal translation
@@ -245,25 +231,35 @@ export default function LearnPage() {
                     {currentItem?.language?.toUpperCase()}
                   </div> */}
                   <h2 className="mb-4 text-5xl font-bold">
-                    {currentItem?.definition || ''}
+                    {currentItem?.definition || ""}
                   </h2>
                   {currentItem?.imageUrl && (
-                    <img src={currentItem.imageUrl} alt={currentItem.term} className="mb-2 h-35 rounded-lg" />
+                    <Image
+                      src={currentItem.imageUrl}
+                      alt={currentItem.term}
+                      className="mb-2 h-35 rounded-lg"
+                    />
                   )}
                   {/* show examples if present, aligned to the same start */}
                   {currentItem?.exampleGerman && (
                     <div className="opacity-80 w-full max-w-md mx-auto text-left flex gap-2">
-                      <span className="">DE:  </span>
-                      <span className="flex-1">{currentItem.exampleGerman}</span>
+                      <span className="">DE: </span>
+                      <span className="flex-1">
+                        {currentItem.exampleGerman}
+                      </span>
                     </div>
                   )}
                   {currentItem?.exampleEnglish && (
                     <div className="opacity-80 w-full max-w-md mx-auto text-left flex gap-2">
                       <span className="">EN:</span>
-                      <span className="flex-1">{currentItem.exampleEnglish}</span>
+                      <span className="flex-1">
+                        {currentItem.exampleEnglish}
+                      </span>
                     </div>
                   )}
-                  <p className="mt-3 text-sm opacity-70 italic">&ldquo;{currentItem?.term}&rdquo;</p>
+                  <p className="mt-3 text-sm opacity-70 italic">
+                    &ldquo;{currentItem?.term}&rdquo;
+                  </p>
                 </div>
               </div>
             </div>
@@ -276,14 +272,14 @@ export default function LearnPage() {
             onClick={handlePrevious}
             className="flex gap-1 rounded-full bg-white px-6 py-3 font-semibold text-gray-700 shadow-lg transition-all hover:scale-105 hover:shadow-xl dark:bg-gray-800 dark:text-gray-200"
           >
-          <ArrowLeftIcon />
-          Prev
+            <ArrowLeftIcon />
+            Prev
           </button>
           <button
             onClick={handleFlip}
             className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 w-42 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
           >
-            {isFlipped ? 'Show Word' : 'Show Translation'}
+            {isFlipped ? "Show Word" : "Show Translation"}
           </button>
           <button
             onClick={handleNext}
@@ -293,10 +289,11 @@ export default function LearnPage() {
           </button>
         </div>
 
-
         {/* Add New Vocab */}
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-          <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">Add New Term</h3>
+          <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">
+            Add New Term
+          </h3>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
             <input
               value={newTerm}
@@ -334,10 +331,15 @@ export default function LearnPage() {
               placeholder="Image URL — optional"
               className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
-            <button onClick={addItem} className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold"> + Add</button>
+            <button
+              onClick={addItem}
+              className="rounded-md bg-blue-600 px-4 py-3 text-white font-bold"
+            >
+              {" "}
+              + Add
+            </button>
           </div>
         </div>
-
 
         {/* Word List */}
         <div className="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
@@ -355,19 +357,19 @@ export default function LearnPage() {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     setCurrentIndex(index);
                     setIsFlipped(false);
                   }
                 }}
                 className={`flex justify-between rounded-lg border-2 p-2 text-left transition-all cursor-pointer ${
                   index === currentIndex
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-700'
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                    : "border-gray-200 hover:border-gray-300 dark:border-gray-700"
                 } ${
                   learnedWords.has(word?.id)
-                    ? 'bg-green-50 dark:bg-green-900/20'
-                    : ''
+                    ? "bg-green-50 dark:bg-green-900/20"
+                    : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -391,102 +393,143 @@ export default function LearnPage() {
                   )}
                 </div>
                 <div className="mt-3 flex gap-3">
-                  <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(word); }} className="rounded-md border p-1 text-sm text-gray-200">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEdit(word);
+                    }}
+                    className="rounded-md border p-1 text-sm text-gray-200"
+                  >
                     <EditIcon />
                   </button>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeItem(word.id); }} className="rounded-md border p-1 text-sm text-red-400 hover:bg-red-100">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeItem(word.id);
+                    }}
+                    className="rounded-md border p-1 text-sm text-red-400 hover:bg-red-100"
+                  >
                     <DeleteIcon />
                   </button>
                 </div>
               </div>
             ))}
           </div>
-         
 
-      {/* Edit Modal Popup */}
-      {editingId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={cancelEdit}>
-          <div className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
-            {/* Close button */}
-            <button
+          {/* Edit Modal Popup */}
+          {editingId !== null && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
               onClick={cancelEdit}
-              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <h4 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-200">Edit Term</h4>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Term</label>
-                  <input
-                    value={editTerm}
-                    onChange={(e) => setEditTerm(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Definition</label>
-                  <input
-                    value={editDefinition}
-                    onChange={(e) => setEditDefinition(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Language</label>
-                <input
-                  value={editLanguage}
-                  onChange={(e) => setEditLanguage(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Example (German) — optional</label>
-                <input
-                  value={editExampleGerman}
-                  onChange={(e) => setEditExampleGerman(e.target.value)}
-                  placeholder="Enter German example sentence"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
-                />
-              </div>
-<div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Example (English) — optional</label>
-                <input
-                  value={editExampleEnglish}
-                  onChange={(e) => setEditExampleEnglish(e.target.value)}
-                  placeholder="Enter English example sentence"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
+              <div
+                className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-800"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close button */}
                 <button
-                  onClick={saveEdit}
-                  className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:shadow-lg"
-                >
-                  Save Changes
-                </button>
-<button
                   onClick={cancelEdit}
-                  className="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                 >
-                  Cancel
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
                 </button>
+
+                <h4 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-200">
+                  Edit Term
+                </h4>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Term
+                      </label>
+                      <input
+                        value={editTerm}
+                        onChange={(e) => setEditTerm(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Definition
+                      </label>
+                      <input
+                        value={editDefinition}
+                        onChange={(e) => setEditDefinition(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Language
+                    </label>
+                    <input
+                      value={editLanguage}
+                      onChange={(e) => setEditLanguage(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Example (German) — optional
+                    </label>
+                    <input
+                      value={editExampleGerman}
+                      onChange={(e) => setEditExampleGerman(e.target.value)}
+                      placeholder="Enter German example sentence"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Example (English) — optional
+                    </label>
+                    <input
+                      value={editExampleEnglish}
+                      onChange={(e) => setEditExampleEnglish(e.target.value)}
+                      placeholder="Enter English example sentence"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={saveEdit}
+                      className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:shadow-lg"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="rounded-lg border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
-      )
-}
-    </div>
-      </div>
-      </div>
   );
 }
