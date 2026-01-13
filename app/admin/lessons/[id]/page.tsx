@@ -188,6 +188,8 @@ export default function EditLessonPage() {
         setLessonTitle={setLessonTitle}
         lessonSlug={lessonSlug}
         setLessonSlug={setLessonSlug}
+        order={order}
+        setOrder={setOrder}
         blocks={blocks}
         setBlocks={setBlocks}
         levelId={levelId}
