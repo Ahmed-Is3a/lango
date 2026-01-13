@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ArrowLeftIcon from '../components/icons/arrow-left';
 import DeleteIcon from '../components/icons/delete';
 import EditIcon from '../components/icons/edit';
+import { getAllVocabsFromDB, saveVocabsToDB } from '@/lib/indexeddb';
 
 interface Vocab {
   id: number;
@@ -29,9 +30,20 @@ export default function LearnPage() {
   useEffect(() => {
     const load = async () => {
       try {
+
+        // Load from cache
+        const cachedVocabs = await getAllVocabsFromDB();
+
+        if (Array.isArray(cachedVocabs) && cachedVocabs.length > 0) {
+          console.log('Loaded vocabularies from IndexedDB');
+          setItems(cachedVocabs as Vocab[]);
+          return;
+        }
         const res = await fetch('/api/vocabs');
         if (!res.ok) throw new Error('Network');
         const data = await res.json() || [];
+        // Save to IndexedDB
+        await saveVocabsToDB(data);
         setItems(data);
         // Cache snapshot locally for offline usage
         try {
