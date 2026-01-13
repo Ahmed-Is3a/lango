@@ -6,6 +6,7 @@ const DB_VERSION = 1;
 const QUIZ_STORE = 'quizzes';
 const PROGRESS_STORE = 'quizProgress';
 const LESSONS_STORE = 'lessons';
+const VOCABS_STORE = 'vocabularies';
 
 interface Quiz {
   id: string | number;
@@ -42,6 +43,15 @@ export const initDB = async (): Promise<IDBDatabase> => {
         lessonStore.createIndex('levelId', 'levelId', { unique: false });
         lessonStore.createIndex('updatedAt', 'updatedAt', { unique: false });
       }
+
+      // Store for vocabularies
+      if (!db.objectStoreNames.contains(VOCABS_STORE)) {
+        const vocabStore = db.createObjectStore(VOCABS_STORE, { keyPath: 'id' });
+        vocabStore.createIndex('term', 'term', { unique: false });
+        vocabStore.createIndex('language', 'language', { unique: false });
+        vocabStore.createIndex('cachedAt', 'cachedAt', { unique: false });
+      }
+
 
     };
   });
@@ -152,7 +162,8 @@ export const getLatestProgress = async () => {
  
 
 
-// Add these new functions for lessons:
+
+// functions for lessons:
 
 // Save lesson to IndexedDB
 export const saveLessonToDB = async (lesson: any) => {
@@ -225,13 +236,125 @@ export const clearAllLessons = async () => {
   });
 };
 
-// Update clearOldData to also clear lessons:
+
+
+// functions for vocabularies:
+
+// Save vocabularies to IndexedDB
+export const saveVocabsToDB = async (vocabs: any[]) => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readwrite');
+  const store = tx.objectStore(VOCABS_STORE);
+  
+  const vocabsWithTimestamp = vocabs.map(vocab => ({
+    ...vocab,
+    cachedAt: new Date().toISOString(),
+  }));
+  
+  vocabsWithTimestamp.forEach(vocab => {
+    store.put(vocab);
+  });
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Save single vocabulary to IndexedDB
+export const saveVocabToDB = async (vocab: any) => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readwrite');
+  const store = tx.objectStore(VOCABS_STORE);
+  
+  const vocabWithTimestamp = {
+    ...vocab,
+    cachedAt: new Date().toISOString(),
+  };
+  
+  store.put(vocabWithTimestamp);
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Get all vocabularies from IndexedDB
+export const getAllVocabsFromDB = async () => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readonly');
+  const store = tx.objectStore(VOCABS_STORE);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Get vocabulary by term
+export const getVocabByTermFromDB = async (term: string) => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readonly');
+  const store = tx.objectStore(VOCABS_STORE);
+  const index = store.index('term');
+  
+  return new Promise((resolve, reject) => {
+    const request = index.getAll(term);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Get vocabularies by language
+export const getVocabsByLanguageFromDB = async (language: string) => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readonly');
+  const store = tx.objectStore(VOCABS_STORE);
+  const index = store.index('language');
+  
+  return new Promise((resolve, reject) => {
+    const request = index.getAll(language);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Delete vocabulary by ID
+export const deleteVocabFromDB = async (id: number) => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readwrite');
+  const store = tx.objectStore(VOCABS_STORE);
+  
+  store.delete(id);
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Clear all vocabularies from IndexedDB
+export const clearAllVocabs = async () => {
+  const db = await initDB();
+  const tx = db.transaction(VOCABS_STORE, 'readwrite');
+  tx.objectStore(VOCABS_STORE).clear();
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Update clearOldData
 export const clearOldData = async () => {
   const db = await initDB();
-  const tx = db.transaction([QUIZ_STORE, PROGRESS_STORE, LESSONS_STORE], 'readwrite');
+  const tx = db.transaction([QUIZ_STORE, PROGRESS_STORE, LESSONS_STORE, VOCABS_STORE], 'readwrite');
   tx.objectStore(QUIZ_STORE).clear();
   tx.objectStore(PROGRESS_STORE).clear();
   tx.objectStore(LESSONS_STORE).clear();
+  tx.objectStore(VOCABS_STORE).clear();
   
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve(true);
