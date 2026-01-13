@@ -417,7 +417,7 @@ export default function AdminLessonsPage() {
                                 <td className="py-4 px-6">
                                   <div className="flex items-center gap-3">
                                     <div className="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-sm shrink-0">
-                                      {lesson.order.toString().padStart(2, '0')}
+                                      {filteredLessons.indexOf(lesson) + 1}
                                     </div>
                                     <div className="flex flex-col">
                                       <span className="font-semibold text-gray-900 dark:text-white">{lesson.title}</span>
