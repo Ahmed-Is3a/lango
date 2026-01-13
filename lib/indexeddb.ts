@@ -5,6 +5,7 @@ const DB_NAME = 'LangoApp';
 const DB_VERSION = 1;
 const QUIZ_STORE = 'quizzes';
 const PROGRESS_STORE = 'quizProgress';
+const LESSONS_STORE = 'lessons';
 
 interface Quiz {
   id: string | number;
@@ -34,6 +35,14 @@ export const initDB = async (): Promise<IDBDatabase> => {
       if (!db.objectStoreNames.contains(PROGRESS_STORE)) {
         db.createObjectStore(PROGRESS_STORE, { keyPath: 'id' });
       }
+
+       // Store for lessons
+      if (!db.objectStoreNames.contains(LESSONS_STORE)) {
+        const lessonStore = db.createObjectStore(LESSONS_STORE, { keyPath: 'slug' });
+        lessonStore.createIndex('levelId', 'levelId', { unique: false });
+        lessonStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+
     };
   });
 };
@@ -140,14 +149,89 @@ export const getLatestProgress = async () => {
     request.onerror = () => reject(request.error);
   });
 };
+ 
 
 
-// Clear old data
+// Add these new functions for lessons:
+
+// Save lesson to IndexedDB
+export const saveLessonToDB = async (lesson: any) => {
+  const db = await initDB();
+  const tx = db.transaction(LESSONS_STORE, 'readwrite');
+  const store = tx.objectStore(LESSONS_STORE);
+  
+  const lessonWithTimestamp = {
+    ...lesson,
+    cachedAt: new Date().toISOString(),
+  };
+  
+  store.put(lessonWithTimestamp);
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Get lesson from IndexedDB by slug
+export const getLessonFromDB = async (slug: string) => {
+  const db = await initDB();
+  const tx = db.transaction(LESSONS_STORE, 'readonly');
+  const store = tx.objectStore(LESSONS_STORE);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.get(slug);
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Get all lessons from IndexedDB
+export const getAllLessonsFromDB = async () => {
+  const db = await initDB();
+  const tx = db.transaction(LESSONS_STORE, 'readonly');
+  const store = tx.objectStore(LESSONS_STORE);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+// Delete lesson from IndexedDB
+export const deleteLessonFromDB = async (slug: string) => {
+  const db = await initDB();
+  const tx = db.transaction(LESSONS_STORE, 'readwrite');
+  const store = tx.objectStore(LESSONS_STORE);
+  
+  store.delete(slug);
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Clear all lessons from IndexedDB
+export const clearAllLessons = async () => {
+  const db = await initDB();
+  const tx = db.transaction(LESSONS_STORE, 'readwrite');
+  tx.objectStore(LESSONS_STORE).clear();
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Update clearOldData to also clear lessons:
 export const clearOldData = async () => {
   const db = await initDB();
-  const tx = db.transaction([QUIZ_STORE, PROGRESS_STORE], 'readwrite');
+  const tx = db.transaction([QUIZ_STORE, PROGRESS_STORE, LESSONS_STORE], 'readwrite');
   tx.objectStore(QUIZ_STORE).clear();
   tx.objectStore(PROGRESS_STORE).clear();
+  tx.objectStore(LESSONS_STORE).clear();
   
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve(true);
