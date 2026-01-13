@@ -30,7 +30,6 @@ export default function LearnPage() {
   useEffect(() => {
     const load = async () => {
       try {
-
         // Load from cache
         const cachedVocabs = await getAllVocabsFromDB();
 
@@ -45,20 +44,8 @@ export default function LearnPage() {
         // Save to IndexedDB
         await saveVocabsToDB(data);
         setItems(data);
-        // Cache snapshot locally for offline usage
-        try {
-          localStorage.setItem('vocabs-cache', JSON.stringify(data));
-        } catch {}
-      } catch {
-        // Fallback: use last cached snapshot
-        try {
-          const raw = localStorage.getItem('vocabs-cache');
-          if (raw) {
-            const cached = JSON.parse(raw) as Vocab[];
-            setItems(cached);
-          }
-        } catch {}
-      }
+        
+      } catch {}
       setCurrentIndex(0);
       setIsFlipped(false);
     };
