@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -284,7 +285,7 @@ export default function BlockEditor({
     <input
       type="text"
       value={(block as any).title ?? ""}
-      onChange={(e) => onUpdateBlock(index, { ...block, title: e.target.value })}
+      onChange={(e) => onUpdateBlock(idx, { ...block, title: e.target.value })}
       placeholder="List title (optional)"
       className="w-full p-2 border ..."/>
     <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -310,7 +311,7 @@ export default function BlockEditor({
             className="flex-1 p-2 border ..."/>
           <button
             onClick={() => {
-              const next = (block as any).items.filter((_, i) => i !== itemIdx);
+              const next = (block as any).items.filter((_ : any, i : any) => i !== itemIdx);
               onUpdateBlock(idx, { ...block, items: next.length ? next : [''] });
             }}
             className="px-2 py-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded">
