@@ -7,7 +7,7 @@ const QUIZ_STORE = 'quizzes';
 const PROGRESS_STORE = 'quizProgress';
 const LESSONS_STORE = 'lessons';
 const VOCABS_STORE = 'vocabularies';
-
+const INDEX_STORE = 'current_vocab_index';
 interface Quiz {
   id: string | number;
   level: string;
@@ -52,6 +52,10 @@ export const initDB = async (): Promise<IDBDatabase> => {
         vocabStore.createIndex('cachedAt', 'cachedAt', { unique: false });
       }
 
+      // Store for current vocabulary index
+      if (!db.objectStoreNames.contains(INDEX_STORE)) {
+        db.createObjectStore(INDEX_STORE, { keyPath: 'id' });
+      }
 
     };
   });
@@ -346,6 +350,40 @@ export const clearAllVocabs = async () => {
     tx.onerror = () => reject(tx.error);
   });
 };
+
+
+
+// Save CurrentIndex to IndexedDB
+export const saveCurrentIndexToDB = async (index: number) => {
+  const db = await initDB();
+  const tx = db.transaction(INDEX_STORE, 'readwrite');
+  const store = tx.objectStore(INDEX_STORE);
+  
+  store.put({ id: 'current', index });
+  
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+};
+
+// Get current vocabulary index from IndexedDB
+export const getCurrentIndexFromDB = async (): Promise<number | null> => {
+  const db = await initDB();
+  const tx = db.transaction(INDEX_STORE, 'readonly');
+  const store = tx.objectStore(INDEX_STORE);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.get('current');
+    request.onsuccess = () => {
+      const result = request.result;
+      resolve(result ? result.index : null);
+    };
+    request.onerror = () => reject(request.error);
+  });
+};
+
+
 
 // Update clearOldData
 export const clearOldData = async () => {
