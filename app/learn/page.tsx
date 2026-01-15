@@ -104,6 +104,8 @@ export default function LearnPage() {
       setNewDefinition("");
       setNewExampleGerman("");
       setNewExampleEnglish("");
+      const data = await getAllVocabsFromDB()
+      setItems(data as Vocab[])
   };
 
   const startEdit = (v: Vocab) => {
@@ -290,11 +292,11 @@ export default function LearnPage() {
         </div>
 
         {/* Add New Vocab */}
-        <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
+        <div className="mb-4 rounded-2xl bg-white p-4 shadow-lg dark:bg-gray-800">
           <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-gray-200">
             Add New Term
           </h3>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-1 md:grid-cols-4">
             <input
               value={newTerm}
               onChange={(e) => setNewTerm(e.target.value)}
@@ -307,22 +309,24 @@ export default function LearnPage() {
               placeholder="Definition"
               className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
-            <input
+            <select
               value={newLanguage}
               onChange={(e) => setNewLanguage(e.target.value)}
-              placeholder="Language (e.g., en, es)"
               className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
-            />
+            >
+              <option value="en">English</option>
+              <option value="de">German</option>
+            </select>
             <input
               value={newExampleGerman}
               onChange={(e) => setNewExampleGerman(e.target.value)}
-              placeholder="Example (German) — optional"
+              placeholder="Example — optional"
               className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
               value={newExampleEnglish}
               onChange={(e) => setNewExampleEnglish(e.target.value)}
-              placeholder="Example (English) — optional"
+              placeholder="Example Translation — optional"
               className="rounded-md border border-blue-300 focus:border-blue-500 focus:outline-none px-3 py-2 dark:bg-gray-900 dark:text-gray-600"
             />
             <input
