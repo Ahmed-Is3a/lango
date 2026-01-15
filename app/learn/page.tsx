@@ -6,7 +6,7 @@ import Image from "next/image";
 import ArrowLeftIcon from "../components/icons/arrow-left";
 import DeleteIcon from "../components/icons/delete";
 import EditIcon from "../components/icons/edit";
-import { getAllVocabsFromDB, saveVocabsToDB, deleteVocabFromDB } from "@/lib/indexeddb";
+import { getAllVocabsFromDB, saveVocabsToDB, deleteVocabFromDB, saveCurrentIndexToDB, getCurrentIndexFromDB } from "@/lib/indexeddb";
 
 interface Vocab {
   id: number;
@@ -34,6 +34,9 @@ export default function LearnPage() {
         // Load from cache
         const cachedVocabs = await getAllVocabsFromDB();
 
+        const currentIndex = await getCurrentIndexFromDB();
+        setCurrentIndex(currentIndex ?? 0);
+
         if (Array.isArray(cachedVocabs) && cachedVocabs.length > 0) {
           console.log("Loaded vocabularies from IndexedDB");
           setItems(cachedVocabs as Vocab[]);
@@ -46,7 +49,7 @@ export default function LearnPage() {
         await saveVocabsToDB(data);
         setItems(data);
       } catch {}
-      setCurrentIndex(0);
+
       setIsFlipped(false);
     };
     load();
@@ -57,6 +60,8 @@ export default function LearnPage() {
     setLearnedWords((prev) => new Set([...prev, currentItem.id]));
     setIsFlipped(false);
     setCurrentIndex((prev) => (prev + 1) % items.length);
+    saveCurrentIndexToDB(currentIndex);
+    localStorage.setItem("currentIndex", JSON.stringify(currentIndex));
   };
 
   const handlePrevious = () => {
